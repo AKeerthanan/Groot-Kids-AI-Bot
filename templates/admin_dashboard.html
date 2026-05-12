@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Admin Dashboard — Groot AI 🌿</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Nunito',sans-serif}
+body{
+  background:
+    radial-gradient(ellipse at 10% 90%, rgba(20,60,24,.5), transparent 45%),
+    linear-gradient(160deg,#050e06,#0d2010 70%,#081408);
+  color:#d4edd6;min-height:100vh;
+}
+
+header{
+  background:linear-gradient(90deg,rgba(10,26,13,0.97),rgba(20,50,22,0.97));
+  padding:14px 28px;display:flex;justify-content:space-between;align-items:center;
+  border-bottom:1px solid rgba(74,158,80,0.2);
+  box-shadow:0 2px 20px rgba(0,0,0,.5);
+  backdrop-filter:blur(10px);
+}
+.brand{font-family:'Fredoka One',cursive;font-size:20px;
+  background:linear-gradient(135deg,#6fcf74,#f5c842);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.brand small{color:#4a7a4e;font-family:'Nunito';font-size:12px;margin-left:8px;-webkit-text-fill-color:#4a7a4e}
+.btn{padding:8px 17px;border:none;border-radius:22px;font-weight:800;cursor:pointer;font-size:13px;transition:all .18s;font-family:'Nunito',sans-serif}
+.btn-out{background:rgba(74,158,80,0.1);color:#6fcf74;border:1px solid rgba(74,158,80,0.25)}
+.btn-out:hover{background:rgba(74,158,80,0.2)}
+.btn-pri{background:linear-gradient(135deg,#4a9e50,#6fcf74);color:#0a1a0d}
+.btn-ok{background:linear-gradient(135deg,#26C6A2,#1a8a6e);color:#fff}
+.btn-bad{background:linear-gradient(135deg,#e85d4a,#c73535);color:#fff}
+.btn-sm{padding:6px 12px;font-size:12px;border-radius:16px}
+
+.tabs{display:flex;gap:4px;padding:14px 28px 0;border-bottom:1px solid rgba(74,158,80,0.08)}
+.tab{padding:10px 20px;cursor:pointer;border-radius:10px 10px 0 0;color:#4a7a4e;font-weight:800;font-size:14px;transition:all .15s}
+.tab:hover{color:#6fcf74}
+.tab.active{background:rgba(20,50,22,0.8);color:#6fcf74;border:1px solid rgba(74,158,80,0.15);border-bottom:none}
+
+main{padding:22px 28px;max-width:1280px;margin:0 auto}
+.panel{display:none}.panel.active{display:block}
+
+.toolbar{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;align-items:center}
+.toolbar select,.toolbar input{
+  padding:8px 13px;border-radius:10px;
+  border:1px solid rgba(74,158,80,0.2);
+  background:rgba(74,158,80,0.07);color:#d4edd6;
+  font-family:inherit;font-size:13px;outline:none;
+}
+.toolbar select:focus,.toolbar input:focus{border-color:rgba(111,207,116,0.4)}
+.toolbar select option{background:#0d2010}
+
+.card{
+  background:rgba(14,35,16,0.8);
+  border:1px solid rgba(74,158,80,0.12);
+  border-radius:14px;padding:16px;margin-bottom:12px;
+  backdrop-filter:blur(4px);
+}
+.row{display:grid;grid-template-columns:1.5fr 2fr 1fr auto;gap:12px;align-items:start}
+.row .meta{font-size:12px;color:#4a7a4e;margin-bottom:5px}
+.row .meta b{color:#7aab7e}
+.row textarea,.row input{
+  width:100%;
+  background:rgba(74,158,80,0.07);
+  border:1px solid rgba(74,158,80,0.15);
+  border-radius:8px;color:#d4edd6;padding:8px 11px;
+  font-family:inherit;font-size:13px;resize:vertical;outline:none;
+}
+.row textarea:focus,.row input:focus{border-color:rgba(111,207,116,0.4)}
+.tag{display:inline-block;padding:2px 9px;border-radius:12px;font-size:11px;font-weight:900}
+.tag-pending{background:rgba(245,200,66,.15);color:#f5c842}
+.tag-approved{background:rgba(74,158,80,.2);color:#6fcf74}
+.tag-rejected{background:rgba(232,93,74,.15);color:#e85d4a}
+.tag-source{background:rgba(74,174,232,.15);color:#4ab8e8;margin-left:5px}
+
+table{width:100%;border-collapse:collapse;border-radius:14px;overflow:hidden}
+th,td{padding:12px 14px;text-align:left;font-size:14px;border-bottom:1px solid rgba(74,158,80,0.07)}
+th{background:rgba(74,158,80,0.07);color:#4a7a4e;font-size:11px;text-transform:uppercase;letter-spacing:.5px}
+tr:hover td{background:rgba(74,158,80,0.04)}
+
+.add-form{
+  background:rgba(14,35,16,0.8);
+  border:1px dashed rgba(74,158,80,0.3);
+  border-radius:14px;padding:20px;margin-bottom:18px;
+}
+.add-form .grid{display:grid;grid-template-columns:1fr 2fr;gap:12px;margin-top:10px}
+.add-form input,.add-form textarea{
+  width:100%;background:rgba(74,158,80,0.07);
+  border:1px solid rgba(74,158,80,0.15);
+  border-radius:8px;color:#d4edd6;padding:9px 12px;
+  font-family:inherit;font-size:13px;resize:vertical;outline:none;
+}
+.add-form input:focus,.add-form textarea:focus{border-color:rgba(111,207,116,0.4)}
+.field-label{font-size:12px;color:#4a7a4e;margin-top:10px;display:block;margin-bottom:4px;font-weight:800;text-transform:uppercase;letter-spacing:.3px}
+.empty{text-align:center;color:#2d5a32;padding:50px;font-style:italic;font-size:14px}
+
+/* API Status */
+.api-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;margin-top:4px}
+.api-card{
+  background:rgba(14,35,16,0.8);
+  border:1px solid rgba(74,158,80,0.1);
+  border-radius:12px;padding:14px 18px;
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+}
+.api-name{font-weight:800;font-size:13px;color:#a8dda8}
+.api-meta{font-size:11px;color:#3d6a41;margin-top:2px}
+.api-status{display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex-shrink:0}
+.status-pill{padding:4px 12px;border-radius:20px;font-size:12px;font-weight:900}
+.status-ok{background:rgba(74,158,80,.2);color:#6fcf74;border:1px solid rgba(74,158,80,.3)}
+.status-err{background:rgba(232,93,74,.18);color:#e85d4a;border:1px solid rgba(232,93,74,.3)}
+.latency{font-size:10px;color:#2d5a32}
+
+.section-title{font-family:'Fredoka One',cursive;font-size:17px;color:#6fcf74;margin-bottom:14px}
+
+@media(max-width:800px){.row{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">🌿 Groot AI Admin <small>logged in as <b>{{ admin_username }}</b></small></div>
+  <div style="display:flex;gap:8px">
+    <a href="/api/admin/export.csv" class="btn btn-ok" style="text-decoration:none">⬇ Export CSV</a>
+    <button class="btn btn-out" onclick="logout()">🚪 Logout</button>
+  </div>
+</header>
+
+<div class="tabs">
+  <div class="tab active" data-tab="training" onclick="showTab('training')">📚 Training Queue</div>
+  <div class="tab" data-tab="add"      onclick="showTab('add')">➕ Add Knowledge</div>
+  <div class="tab" data-tab="users"    onclick="showTab('users')">👥 Users</div>
+  <div class="tab" data-tab="apis"     onclick="showTab('apis')">🔌 API Status</div>
+</div>
+
+<main>
+
+<!-- Training queue -->
+<div class="panel active" id="panel-training">
+  <div class="section-title">📚 Training Queue</div>
+  <div class="toolbar">
+    <label style="color:#4a7a4e;font-size:13px;font-weight:800">Filter:</label>
+    <select id="statusFilter" onchange="loadTraining()">
+      <option value="pending">Pending</option>
+      <option value="approved">Approved</option>
+      <option value="rejected">Rejected</option>
+      <option value="">All</option>
+    </select>
+    <button class="btn btn-out btn-sm" onclick="loadTraining()">🔄 Refresh</button>
+  </div>
+  <div id="trainingList"></div>
+</div>
+
+<!-- Add knowledge -->
+<div class="panel" id="panel-add">
+  <div class="section-title">➕ Teach Groot a New Fact</div>
+  <div class="add-form">
+    <p style="color:#4a7a4e;font-size:13px">Saved directly to <code style="background:rgba(74,158,80,.1);padding:1px 6px;border-radius:4px;color:#6fcf74">datasets/trainning.csv</code> — Groot learns instantly!</p>
+    <div class="grid">
+      <div>
+        <span class="field-label">Topic</span>
+        <input id="newTopic" placeholder="science / math / english / general"/>
+      </div>
+      <div>
+        <span class="field-label">Keywords (comma-separated)</span>
+        <input id="newKw" placeholder="newton law force motion"/>
+      </div>
+    </div>
+    <span class="field-label">Question</span>
+    <input id="newQ" placeholder="What is Newton's first law?"/>
+    <span class="field-label">Answer</span>
+    <textarea id="newA" rows="3" placeholder="An object stays at rest or in motion unless acted on by a force…"></textarea>
+    <button class="btn btn-pri" style="margin-top:14px" onclick="addNew()">💾 Save &amp; Retrain Groot</button>
+  </div>
+</div>
+
+<!-- Users -->
+<div class="panel" id="panel-users">
+  <div class="section-title">👥 Registered Users</div>
+  <table id="usersTable">
+    <thead><tr><th>Username</th><th>Email</th><th>Age</th><th>Joined</th></tr></thead>
+    <tbody></tbody>
+  </table>
+</div>
+
+<!-- API Status -->
+<div class="panel" id="panel-apis">
+  <div class="section-title">🔌 External API Status</div>
+  <div class="toolbar">
+    <button class="btn btn-pri btn-sm" onclick="loadApis()">🔄 Re-check all APIs</button>
+    <span style="color:#2d5a32;font-size:12px">Live ping of every external knowledge source.</span>
+  </div>
+  <div id="apiList"><div class="empty">🌿 Click "Re-check" to test all APIs…</div></div>
+</div>
+
+</main>
+
+<script>
+function showTab(name){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.tab===name));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active',p.id==='panel-'+name));
+  if(name==='users')loadUsers();
+  if(name==='training')loadTraining();
+  if(name==='apis')loadApis();
+}
+
+async function loadApis(){
+  const list=document.getElementById('apiList');
+  list.innerHTML='<div class="empty">🌿 Pinging all APIs… ⏳</div>';
+  try{
+    const r=await fetch('/api/admin/api-status');
+    const d=await r.json();
+    if(!d.apis){list.innerHTML='<div class="empty">No data</div>';return}
+    const working=d.apis.filter(a=>a.ok).length;
+    const total=d.apis.length;
+    list.innerHTML=`
+      <div style="margin-bottom:14px;color:#4a7a4e;font-size:13px;font-weight:800">
+        <span style="color:${working===total?'#6fcf74':'#f5c842'};font-size:18px">${working}/${total}</span> APIs operational
+      </div>
+      <div class="api-grid">
+      ${d.apis.map(a=>`
+        <div class="api-card">
+          <div>
+            <div class="api-name">${a.name}</div>
+            <div class="api-meta">Response: ${a.latency_ms||'—'}ms</div>
+          </div>
+          <div class="api-status">
+            <span class="status-pill ${a.ok?'status-ok':'status-err'}">${a.ok?'✅ ONLINE':'❌ DOWN'}</span>
+            <span class="latency">${a.latency_ms||'—'} ms</span>
+          </div>
+        </div>`).join('')}
+      </div>`;
+  }catch(e){
+    list.innerHTML='<div class="empty">Failed to fetch API status 😕</div>';
+  }
+}
+
+async function logout(){
+  await fetch('/api/admin/logout',{method:'POST'});
+  location.href='/admin';
+}
+
+async function loadTraining(){
+  const status=document.getElementById('statusFilter').value;
+  const url='/api/admin/training'+(status?`?status=${status}`:'');
+  const r=await fetch(url);const d=await r.json();
+  const list=document.getElementById('trainingList');
+  if(!d.items||!d.items.length){list.innerHTML='<div class="empty">🌿 No items here — Groot knows everything!</div>';return}
+  list.innerHTML=d.items.map(it=>`
+    <div class="card" data-id="${it.id}">
+      <div class="row">
+        <div>
+          <div class="meta">
+            <span class="tag tag-${it.status}">${it.status.toUpperCase()}</span>
+            <span class="tag tag-source">${it.source}</span>
+            <div style="margin-top:5px">From <b>${escapeHtml(it.username||'unknown')}</b> · ${new Date(it.created_at).toLocaleString()}</div>
+          </div>
+          <div class="meta" style="margin-top:8px">Question</div>
+          <textarea data-field="question" rows="2">${escapeHtml(it.question||'')}</textarea>
+        </div>
+        <div>
+          <div class="meta">Answer <span style="color:#2d5a32">(edit before approving)</span></div>
+          <textarea data-field="answer" rows="4" placeholder="Type the correct answer here…">${escapeHtml(it.answer||'')}</textarea>
+        </div>
+        <div>
+          <div class="meta">Topic</div>
+          <input data-field="topic" value="${escapeHtml(it.topic||'general')}"/>
+          <div class="meta" style="margin-top:8px">Keywords</div>
+          <input data-field="keywords" placeholder="optional"/>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px;padding-top:22px">
+          <button class="btn btn-ok btn-sm" onclick="approve('${it.id}')">✓ Approve</button>
+          <button class="btn btn-bad btn-sm" onclick="reject('${it.id}')">✗ Reject</button>
+          <button class="btn btn-out btn-sm" onclick="del('${it.id}')">🗑 Delete</button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function getRow(id){
+  const card=document.querySelector(`.card[data-id="${id}"]`);
+  const f=name=>card.querySelector(`[data-field="${name}"]`).value.trim();
+  return {question:f('question'),answer:f('answer'),topic:f('topic'),keywords:f('keywords')};
+}
+
+async function approve(id){
+  const body=getRow(id);
+  if(!body.answer){alert('Please type an answer before approving!');return}
+  const r=await fetch(`/api/admin/training/${id}/approve`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  const d=await r.json();
+  if(d.success)loadTraining();else alert(d.error||'Failed');
+}
+async function reject(id){await fetch(`/api/admin/training/${id}/reject`,{method:'POST'});loadTraining()}
+async function del(id){if(!confirm('Permanently delete this item?'))return;await fetch(`/api/admin/training/${id}`,{method:'DELETE'});loadTraining()}
+
+async function addNew(){
+  const body={
+    question:document.getElementById('newQ').value.trim(),
+    answer:document.getElementById('newA').value.trim(),
+    topic:document.getElementById('newTopic').value.trim()||'general',
+    keywords:document.getElementById('newKw').value.trim(),
+  };
+  if(!body.question||!body.answer){alert('Question + answer required!');return}
+  const r=await fetch('/api/admin/training/add',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  const d=await r.json();
+  if(d.success){
+    ['newQ','newA','newTopic','newKw'].forEach(i=>document.getElementById(i).value='');
+    alert('Saved! Groot just learned it 🌿🎉');
+  }else alert(d.error||'Failed');
+}
+
+async function loadUsers(){
+  const r=await fetch('/api/admin/users');const d=await r.json();
+  document.querySelector('#usersTable tbody').innerHTML=(d.users||[]).map(u=>`
+    <tr>
+      <td><b style="color:#6fcf74">${escapeHtml(u.username)}</b></td>
+      <td>${escapeHtml(u.email)}</td>
+      <td>${u.age||'—'}</td>
+      <td>${new Date(u.created_at).toLocaleDateString()}</td>
+    </tr>`).join('');
+}
+
+function escapeHtml(s){return (s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+
+loadTraining();
+</script>
+</body>
+</html>

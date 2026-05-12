@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Groot AI — Your Smart Forest Friend 🌿</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Fredoka+One&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --forest:#0a1a0d; --moss:#1a3a1e; --bark:#2d5a32;
+  --leaf:#4a9e50; --bright-leaf:#6fcf74; --glow:#a8e6ab;
+  --golden:#f5c842; --amber:#e8a020;
+  --text:#d4edd6; --sub:#7aab7e;
+  --danger:#e85d4a;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:'Nunito',sans-serif;color:var(--text);overflow-x:hidden}
+body{
+  background:
+    radial-gradient(ellipse at 15% 85%, rgba(44,100,48,.4), transparent 50%),
+    radial-gradient(ellipse at 85% 20%, rgba(74,158,80,.2), transparent 50%),
+    linear-gradient(160deg,#050e06,#0d2010 60%,#081408);
+  min-height:100vh;
+}
+
+/* Firefly particles */
+.firefly{position:fixed;width:4px;height:4px;border-radius:50%;background:#a8e6ab;pointer-events:none;z-index:0;animation:firefly-fly linear infinite;opacity:0}
+@keyframes firefly-fly{
+  0%{opacity:0;transform:translate(0,0) scale(0.5)}
+  20%{opacity:0.9}
+  80%{opacity:0.6}
+  100%{opacity:0;transform:translate(var(--tx),var(--ty)) scale(1.5)}
+}
+
+/* Floating leaves */
+.leaf-float{position:fixed;pointer-events:none;z-index:0;font-size:18px;animation:leaf-fall linear infinite;opacity:0}
+@keyframes leaf-fall{
+  0%{opacity:0;transform:translateY(-50px) rotate(0deg) translateX(0)}
+  10%{opacity:0.7}
+  90%{opacity:0.3}
+  100%{opacity:0;transform:translateY(110vh) rotate(720deg) translateX(40px)}
+}
+
+/* NAV */
+nav{
+  position:relative;z-index:10;
+  display:flex;justify-content:space-between;align-items:center;
+  padding:20px 40px;
+  border-bottom:1px solid rgba(74,158,80,0.1);
+  backdrop-filter:blur(10px);
+}
+.logo{
+  display:flex;align-items:center;gap:10px;
+  font-family:'Fredoka One',cursive;font-size:26px;
+  background:linear-gradient(135deg,var(--bright-leaf),var(--golden));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.logo-icon{font-size:28px;filter:drop-shadow(0 0 10px rgba(111,207,116,0.6))}
+.nav-btns{display:flex;gap:10px}
+.nav-btn{
+  padding:8px 20px;border-radius:20px;border:none;cursor:pointer;
+  font-family:'Nunito',sans-serif;font-weight:800;font-size:14px;transition:all .2s;
+}
+.nav-btn-outline{
+  background:transparent;border:1px solid rgba(111,207,116,0.3);color:var(--bright-leaf);
+}
+.nav-btn-outline:hover{background:rgba(74,158,80,0.15)}
+.nav-btn-solid{
+  background:linear-gradient(135deg,var(--leaf),var(--bright-leaf));
+  color:#0a1a0d;box-shadow:0 4px 15px rgba(74,158,80,0.4);
+}
+.nav-btn-solid:hover{transform:scale(1.05);box-shadow:0 6px 20px rgba(74,158,80,0.6)}
+
+/* HERO */
+.hero{
+  position:relative;z-index:1;
+  display:flex;flex-direction:column;align-items:center;
+  text-align:center;padding:50px 20px 40px;
+}
+.hero-groot{
+  width:200px;height:200px;
+  filter:drop-shadow(0 0 40px rgba(111,207,116,0.7));
+  animation:hero-dance 3s ease-in-out infinite alternate;
+  margin-bottom:20px;
+}
+@keyframes hero-dance{
+  0%{transform:rotate(-5deg) scale(1) translateY(0)}
+  100%{transform:rotate(5deg) scale(1.08) translateY(-12px)}
+}
+.hero-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  background:rgba(74,158,80,0.1);border:1px solid rgba(74,158,80,0.3);
+  border-radius:20px;padding:5px 14px;font-size:12px;font-weight:800;
+  color:var(--bright-leaf);margin-bottom:16px;
+  animation:badge-glow 2s ease-in-out infinite;
+}
+@keyframes badge-glow{0%,100%{box-shadow:0 0 0 rgba(74,158,80,0)}50%{box-shadow:0 0 15px rgba(74,158,80,0.3)}}
+.hero h1{
+  font-family:'Fredoka One',cursive;font-size:clamp(38px,7vw,72px);
+  line-height:1.1;margin-bottom:8px;
+  background:linear-gradient(135deg,var(--bright-leaf) 0%,var(--golden) 50%,var(--bright-leaf) 100%);
+  background-size:200% auto;
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  animation:shimmer 4s linear infinite;
+}
+@keyframes shimmer{0%{background-position:0% center}100%{background-position:200% center}}
+.hero-tagline{
+  font-family:'Fredoka One',cursive;font-size:clamp(18px,3vw,26px);
+  color:rgba(168,230,171,0.8);margin-bottom:14px;
+}
+.hero-desc{
+  font-size:clamp(14px,2vw,17px);color:var(--sub);
+  max-width:560px;line-height:1.7;margin-bottom:30px;
+}
+.hero-btns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-bottom:30px}
+.hero-btn-main{
+  padding:14px 36px;border-radius:14px;border:none;cursor:pointer;
+  font-family:'Fredoka One',cursive;font-size:18px;
+  background:linear-gradient(135deg,var(--leaf),var(--bright-leaf));
+  color:#0a1a0d;
+  box-shadow:0 6px 25px rgba(74,158,80,0.5),0 0 40px rgba(74,158,80,0.2);
+  transition:all .25s;
+}
+.hero-btn-main:hover{transform:scale(1.07) translateY(-2px);box-shadow:0 10px 35px rgba(74,158,80,0.7)}
+.hero-btn-sec{
+  padding:14px 36px;border-radius:14px;
+  background:transparent;border:2px solid rgba(111,207,116,0.35);
+  color:var(--bright-leaf);cursor:pointer;
+  font-family:'Fredoka One',cursive;font-size:18px;transition:all .25s;
+}
+.hero-btn-sec:hover{background:rgba(74,158,80,0.15);transform:translateY(-2px)}
+
+/* FEATURES */
+.features{
+  position:relative;z-index:1;
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:16px;max-width:900px;margin:0 auto;padding:0 20px 60px;
+}
+.feat-card{
+  background:rgba(15,34,17,0.7);border:1px solid rgba(74,158,80,0.15);
+  border-radius:16px;padding:20px;text-align:center;
+  backdrop-filter:blur(8px);transition:all .25s;
+}
+.feat-card:hover{
+  background:rgba(20,50,22,0.8);border-color:rgba(111,207,116,0.35);
+  transform:translateY(-4px);box-shadow:0 12px 30px rgba(0,0,0,0.4),0 0 20px rgba(74,158,80,0.1);
+}
+.feat-icon{font-size:34px;margin-bottom:10px;display:block}
+.feat-title{font-family:'Fredoka One',cursive;font-size:16px;color:var(--bright-leaf);margin-bottom:6px}
+.feat-desc{font-size:12px;color:var(--sub);line-height:1.5}
+
+/* AUTH MODALS */
+.modal-bg{
+  display:none;position:fixed;inset:0;z-index:100;
+  background:rgba(0,0,0,0.85);backdrop-filter:blur(8px);
+  align-items:center;justify-content:center;
+}
+.modal-bg.show{display:flex}
+.auth-box{
+  background:linear-gradient(145deg,rgba(20,41,22,0.98),rgba(10,26,13,0.98));
+  border:1px solid rgba(74,158,80,0.25);border-radius:24px;
+  padding:36px;width:100%;max-width:400px;
+  box-shadow:0 25px 80px rgba(0,0,0,0.8),0 0 40px rgba(74,158,80,0.05);
+  animation:box-in .3s cubic-bezier(.22,1,.36,1);
+}
+@keyframes box-in{from{opacity:0;transform:scale(.88) translateY(24px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.auth-groot{display:flex;justify-content:center;margin-bottom:14px}
+.auth-groot svg{width:70px;height:70px;filter:drop-shadow(0 0 15px rgba(111,207,116,0.5));animation:groot-idle 2s ease-in-out infinite alternate}
+@keyframes groot-idle{0%{transform:rotate(-4deg)}100%{transform:rotate(4deg)}}
+.auth-title{font-family:'Fredoka One',cursive;font-size:24px;text-align:center;margin-bottom:4px;
+  background:linear-gradient(135deg,var(--bright-leaf),var(--golden));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.auth-sub{text-align:center;font-size:12px;color:var(--sub);margin-bottom:22px}
+.form-group{margin-bottom:14px}
+.form-group label{display:block;font-size:12px;font-weight:800;color:var(--sub);margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px}
+.form-group input, .form-group select{
+  width:100%;padding:11px 14px;
+  background:rgba(74,158,80,0.08);
+  border:1px solid rgba(74,158,80,0.2);
+  border-radius:12px;color:var(--text);
+  font-family:'Nunito',sans-serif;font-size:14px;outline:none;transition:all .2s;
+}
+.form-group input:focus, .form-group select:focus{
+  border-color:rgba(111,207,116,0.5);
+  box-shadow:0 0 0 3px rgba(74,158,80,0.1);
+}
+.form-group input::placeholder{color:rgba(74,158,80,0.35)}
+.form-group select option{background:#1a3a1e}
+.btn-auth{
+  width:100%;padding:13px;border-radius:14px;border:none;cursor:pointer;
+  font-family:'Fredoka One',cursive;font-size:18px;
+  background:linear-gradient(135deg,var(--leaf),var(--bright-leaf));
+  color:#0a1a0d;margin-top:6px;
+  box-shadow:0 4px 20px rgba(74,158,80,0.4);transition:all .2s;
+}
+.btn-auth:hover{transform:scale(1.03);box-shadow:0 6px 25px rgba(74,158,80,0.6)}
+.auth-switch{text-align:center;font-size:13px;color:var(--sub);margin-top:14px}
+.auth-switch a{color:var(--bright-leaf);font-weight:800;cursor:pointer;text-decoration:none}
+.auth-switch a:hover{text-decoration:underline}
+.auth-error{
+  background:rgba(232,93,74,0.1);border:1px solid rgba(232,93,74,0.3);
+  border-radius:10px;padding:10px;font-size:12px;color:#ff9988;
+  margin-bottom:12px;text-align:center;display:none;
+}
+.auth-close{
+  position:absolute;top:14px;right:18px;background:none;border:none;
+  color:var(--sub);font-size:22px;cursor:pointer;padding:4px;line-height:1;
+}
+.auth-close:hover{color:var(--text)}
+</style>
+</head>
+<body>
+
+<!-- Fireflies and leaves (added by JS) -->
+
+<!-- LOGIN MODAL -->
+<div class="modal-bg" id="loginModal">
+  <div class="auth-box" style="position:relative">
+    <button class="auth-close" onclick="closeModal('loginModal')">✕</button>
+    <div class="auth-groot">
+      <svg viewBox="0 0 80 90" xmlns="http://www.w3.org/2000/svg">
+        <ellipse cx="40" cy="78" rx="18" ry="10" fill="#5a3a1a"/>
+        <rect x="25" y="68" width="30" height="16" rx="5" fill="#6b4523"/>
+        <ellipse cx="40" cy="68" rx="15" ry="4" fill="#3d2510"/>
+        <path d="M30 72 Q23 76 20 82" stroke="#4a7a3a" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+        <path d="M50 72 Q57 76 60 82" stroke="#4a7a3a" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+        <path d="M30 68 Q28 56 30 46 Q32 40 40 38 Q48 40 50 46 Q52 56 50 68" fill="#5a8a45"/>
+        <path d="M32 52 Q22 48 17 52" stroke="#5a8a45" stroke-width="6" fill="none" stroke-linecap="round"/>
+        <path d="M48 52 Q58 48 63 52" stroke="#5a8a45" stroke-width="6" fill="none" stroke-linecap="round"/>
+        <circle cx="16" cy="53" r="4" fill="#4a7a3a"/>
+        <circle cx="64" cy="53" r="4" fill="#4a7a3a"/>
+        <ellipse cx="40" cy="27" rx="16" ry="18" fill="#5a8a45"/>
+        <ellipse cx="33" cy="27" rx="4" ry="5" fill="#1a0a00"/>
+        <ellipse cx="47" cy="27" rx="4" ry="5" fill="#1a0a00"/>
+        <circle cx="35" cy="25" r="1.5" fill="#fff" opacity="0.9"/>
+        <circle cx="49" cy="25" r="1.5" fill="#fff" opacity="0.9"/>
+        <ellipse cx="40" cy="33" rx="2.5" ry="1.5" fill="#3d6a30"/>
+        <path d="M34 37 Q40 42 46 37" stroke="#3d6a30" stroke-width="2" fill="none" stroke-linecap="round"/>
+        <ellipse cx="27" cy="12" rx="7" ry="4" fill="#6fcf74" transform="rotate(-35 27 12)"/>
+        <ellipse cx="40" cy="8" rx="6" ry="3.5" fill="#5ab860"/>
+        <ellipse cx="53" cy="11" rx="7" ry="4" fill="#7dd982" transform="rotate(30 53 11)"/>
+        <circle cx="40" cy="4" r="3" fill="#f5c842"/>
+        <circle cx="36" cy="3" r="2.5" fill="#f5c842"/>
+        <circle cx="44" cy="3" r="2.5" fill="#f5c842"/>
+        <circle cx="40" cy="4" r="2" fill="#e8a020"/>
+      </svg>
+    </div>
+    <div class="auth-title">Welcome Back!</div>
+    <div class="auth-sub">Groot remembers you! 🌿</div>
+    <div class="auth-error" id="login-err"></div>
+    <div class="form-group"><label>Email</label><input type="email" id="l-email" placeholder="your@email.com"/></div>
+    <div class="form-group"><label>Password</label><input type="password" id="l-pass" placeholder="••••••"/></div>
+    <button class="btn-auth" onclick="doLogin()">🌿 Login to Groot AI</button>
+    <div class="auth-switch">No account? <a onclick="switchModal('loginModal','signupModal')">Sign up free!</a></div>
+  </div>
+</div>
+
+<!-- SIGNUP MODAL -->
+<div class="modal-bg" id="signupModal">
+  <div class="auth-box" style="position:relative">
+    <button class="auth-close" onclick="closeModal('signupModal')">✕</button>
+    <div class="auth-groot">
+      <svg viewBox="0 0 80 90" xmlns="http://www.w3.org/2000/svg">
+        <ellipse cx="40" cy="78" rx="18" ry="10" fill="#5a3a1a"/>
+        <rect x="25" y="68" width="30" height="16" rx="5" fill="#6b4523"/>
+        <ellipse cx="40" cy="68" rx="15" ry="4" fill="#3d2510"/>
+        <path d="M30 72 Q23 76 20 82" stroke="#4a7a3a" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+        <path d="M50 72 Q57 76 60 82" stroke="#4a7a3a" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+        <path d="M30 68 Q28 56 30 46 Q32 40 40 38 Q48 40 50 46 Q52 56 50 68" fill="#5a8a45"/>
+        <path d="M32 52 Q22 48 17 52" stroke="#5a8a45" stroke-width="6" fill="none" stroke-linecap="round"/>
+        <path d="M48 52 Q58 48 63 52" stroke="#5a8a45" stroke-width="6" fill="none" stroke-linecap="round"/>
+        <circle cx="16" cy="53" r="4" fill="#4a7a3a"/>
+        <circle cx="64" cy="53" r="4" fill="#4a7a3a"/>
+        <ellipse cx="40" cy="27" rx="16" ry="18" fill="#5a8a45"/>
+        <ellipse cx="33" cy="27" rx="4" ry="5" fill="#1a0a00"/>
+        <ellipse cx="47" cy="27" rx="4" ry="5" fill="#1a0a00"/>
+        <circle cx="35" cy="25" r="1.5" fill="#fff" opacity="0.9"/>
+        <circle cx="49" cy="25" r="1.5" fill="#fff" opacity="0.9"/>
+        <path d="M34 37 Q40 42 46 37" stroke="#3d6a30" stroke-width="2" fill="none" stroke-linecap="round"/>
+        <ellipse cx="27" cy="12" rx="7" ry="4" fill="#6fcf74" transform="rotate(-35 27 12)"/>
+        <ellipse cx="40" cy="8" rx="6" ry="3.5" fill="#5ab860"/>
+        <ellipse cx="53" cy="11" rx="7" ry="4" fill="#7dd982" transform="rotate(30 53 11)"/>
+        <circle cx="40" cy="4" r="3" fill="#f5c842"/>
+        <circle cx="36" cy="3" r="2.5" fill="#f5c842"/>
+        <circle cx="44" cy="3" r="2.5" fill="#f5c842"/>
+        <circle cx="40" cy="4" r="2" fill="#e8a020"/>
+      </svg>
+    </div>
+    <div class="auth-title">Join Groot AI!</div>
+    <div class="auth-sub">We are Groot! Let's learn together 🌱</div>
+    <div class="auth-error" id="signup-err"></div>
+    <div class="form-group"><label>Username</label><input type="text" id="s-name" placeholder="Cool username"/></div>
+    <div class="form-group"><label>Email</label><input type="email" id="s-email" placeholder="your@email.com"/></div>
+    <div class="form-group"><label>Password (6+ chars)</label><input type="password" id="s-pass" placeholder="••••••"/></div>
+    <div class="form-group">
+      <label>Your Age</label>
+      <select id="s-age">
+        <option value="5">5 years old</option>
+        <option value="6">6 years old</option>
+        <option value="7">7 years old</option>
+        <option value="8" selected>8 years old</option>
+        <option value="9">9 years old</option>
+        <option value="10">10 years old</option>
+        <option value="11">11 years old</option>
+        <option value="12">12 years old</option>
+        <option value="13">13+ years old</option>
+      </select>
+    </div>
+    <button class="btn-auth" onclick="doSignup()">🌿 Create My Account</button>
+    <div class="auth-switch">Already have an account? <a onclick="switchModal('signupModal','loginModal')">Login!</a></div>
+  </div>
+</div>
+
+<!-- PAGE CONTENT -->
+<nav>
+  <div class="logo">
+    <span class="logo-icon">🌿</span>
+    Groot AI
+  </div>
+  <div class="nav-btns">
+    <button class="nav-btn nav-btn-outline" onclick="openModal('loginModal')">Login</button>
+    <button class="nav-btn nav-btn-solid" onclick="openModal('signupModal')">Get Started Free!</button>
+  </div>
+</nav>
+
+<div class="hero">
+  <svg class="hero-groot" viewBox="0 0 100 110" xmlns="http://www.w3.org/2000/svg">
+    <ellipse cx="50" cy="95" rx="22" ry="12" fill="#5a3a1a"/>
+    <rect x="32" y="83" width="36" height="20" rx="6" fill="#6b4523"/>
+    <ellipse cx="50" cy="83" rx="18" ry="5" fill="#3d2510"/>
+    <path d="M35 88 Q28 92 25 100" stroke="#4a7a3a" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <path d="M65 88 Q72 92 75 100" stroke="#4a7a3a" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <path d="M38 84 Q36 70 38 58 Q40 50 50 48 Q60 50 62 58 Q64 70 62 84" fill="#5a8a45"/>
+    <path d="M40 65 Q28 60 22 65 Q18 68 20 72" stroke="#5a8a45" stroke-width="7" fill="none" stroke-linecap="round"/>
+    <path d="M60 65 Q72 60 78 65 Q82 68 80 72" stroke="#5a8a45" stroke-width="7" fill="none" stroke-linecap="round"/>
+    <circle cx="20" cy="73" r="5" fill="#4a7a3a"/>
+    <circle cx="80" cy="73" r="5" fill="#4a7a3a"/>
+    <ellipse cx="50" cy="36" rx="20" ry="22" fill="#5a8a45"/>
+    <ellipse cx="42" cy="36" rx="5" ry="6" fill="#1a0a00"/>
+    <ellipse cx="58" cy="36" rx="5" ry="6" fill="#1a0a00"/>
+    <circle cx="44" cy="34" r="2" fill="#fff" opacity="0.9"/>
+    <circle cx="60" cy="34" r="2" fill="#fff" opacity="0.9"/>
+    <ellipse cx="50" cy="43" rx="3" ry="2" fill="#3d6a30"/>
+    <path d="M43 48 Q50 54 57 48" stroke="#3d6a30" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    <ellipse cx="35" cy="18" rx="8" ry="5" fill="#6fcf74" transform="rotate(-30 35 18)"/>
+    <ellipse cx="50" cy="12" rx="7" ry="4" fill="#5ab860" transform="rotate(5 50 12)"/>
+    <ellipse cx="65" cy="16" rx="8" ry="5" fill="#7dd982" transform="rotate(25 65 16)"/>
+    <ellipse cx="42" cy="10" rx="5" ry="3" fill="#4caf52" transform="rotate(-15 42 10)"/>
+    <ellipse cx="60" cy="9" rx="5" ry="3" fill="#8ae88e" transform="rotate(20 60 9)"/>
+    <circle cx="50" cy="6" r="4" fill="#f5c842"/>
+    <circle cx="44" cy="5" r="3" fill="#f5c842"/>
+    <circle cx="56" cy="5" r="3" fill="#f5c842"/>
+    <circle cx="50" cy="6" r="2.5" fill="#e8a020"/>
+    <path d="M42 55 Q50 50 58 55" stroke="#3d6a30" stroke-width="1" fill="none"/>
+    <path d="M40 65 Q50 60 60 65" stroke="#3d6a30" stroke-width="1" fill="none"/>
+    <path d="M41 75 Q50 70 59 75" stroke="#3d6a30" stroke-width="1" fill="none"/>
+  </svg>
+  
+  <div class="hero-badge">🌿 Safe for Kids · Powered by Forest Magic · Free!</div>
+  <h1>Groot AI</h1>
+  <div class="hero-tagline">I am Groot! (Your Super Smart Learning Friend)</div>
+  <p class="hero-desc">
+    Groot AI understands you even with spelling mistakes, grammar mistakes, or child-like typing! 
+    Ask anything about maths, science, animals, space and more. Groot remembers everything you share! 🌱
+  </p>
+  <div class="hero-btns">
+    <button class="hero-btn-main" onclick="openModal('signupModal')">🌿 Start Learning Free!</button>
+    <button class="hero-btn-sec" onclick="openModal('loginModal')">Already have an account?</button>
+  </div>
+</div>
+
+<div class="features">
+  <div class="feat-card">
+    <span class="feat-icon">🧠</span>
+    <div class="feat-title">Understands Any Typing</div>
+    <div class="feat-desc">Spelling mistakes? Grammar errors? No problem! Groot understands what you mean!</div>
+  </div>
+  <div class="feat-card">
+    <span class="feat-icon">💭</span>
+    <div class="feat-title">Remembers Everything</div>
+    <div class="feat-desc">Groot remembers your name, age, and all your past conversations — always!</div>
+  </div>
+  <div class="feat-card">
+    <span class="feat-icon">🎯</span>
+    <div class="feat-title">Fun Quizzes</div>
+    <div class="feat-desc">Click answer options for quizzes and Groot tells you if you're right instantly!</div>
+  </div>
+  <div class="feat-card">
+    <span class="feat-icon">🖼️</span>
+    <div class="feat-title">Images & Videos</div>
+    <div class="feat-desc">Click images to view, share on social media, or copy links! Watch embedded videos!</div>
+  </div>
+  <div class="feat-card">
+    <span class="feat-icon">🐾</span>
+    <div class="feat-title">Animal Facts</div>
+    <div class="feat-desc">Learn about amazing animals from around the world with pictures and fun facts!</div>
+  </div>
+  <div class="feat-card">
+    <span class="feat-icon">🔒</span>
+    <div class="feat-title">100% Safe</div>
+    <div class="feat-desc">No adult content, no violence, no bad language — always safe and educational!</div>
+  </div>
+</div>
+
+<script>
+// Fireflies
+(function(){
+  const colors = ['#a8e6ab','#6fcf74','#f5c842','#d4edd6'];
+  for(let i=0;i<20;i++){
+    const el = document.createElement('div');
+    el.className = 'firefly';
+    el.style.cssText = `
+      left:${Math.random()*100}%;top:${Math.random()*100}%;
+      --tx:${(Math.random()-0.5)*300}px;--ty:${(Math.random()-0.5)*300}px;
+      background:${colors[Math.floor(Math.random()*colors.length)]};
+      box-shadow:0 0 6px ${colors[Math.floor(Math.random()*colors.length)]};
+      animation-duration:${4+Math.random()*8}s;
+      animation-delay:${-Math.random()*8}s;
+      width:${2+Math.random()*4}px;height:${2+Math.random()*4}px;
+    `;
+    document.body.appendChild(el);
+  }
+  // Falling leaves
+  const leafSymbols = ['🍃','🌿','🍀','✨'];
+  for(let i=0;i<12;i++){
+    const el = document.createElement('div');
+    el.className = 'leaf-float';
+    el.textContent = leafSymbols[Math.floor(Math.random()*leafSymbols.length)];
+    el.style.cssText = `
+      left:${Math.random()*100}%;
+      animation-duration:${12+Math.random()*20}s;
+      animation-delay:${-Math.random()*20}s;
+      font-size:${12+Math.random()*16}px;
+      opacity:0;
+    `;
+    document.body.appendChild(el);
+  }
+})();
+
+function openModal(id){ document.getElementById(id).classList.add('show'); }
+function closeModal(id){ document.getElementById(id).classList.remove('show'); }
+function switchModal(from, to){ closeModal(from); openModal(to); }
+
+// Close on backdrop click
+document.querySelectorAll('.modal-bg').forEach(m=>{
+  m.addEventListener('click', e=>{ if(e.target===m) m.classList.remove('show'); });
+});
+
+async function doLogin(){
+  const email = document.getElementById('l-email').value.trim();
+  const pass  = document.getElementById('l-pass').value;
+  const err   = document.getElementById('login-err');
+  err.style.display='none';
+  try{
+    const r = await fetch('/api/login',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({email,password:pass})
+    });
+    const d = await r.json();
+    if(d.success){ window.location.href='/chat'; }
+    else{ err.textContent=d.error||'Login failed!'; err.style.display='block'; }
+  }catch(e){ err.textContent='Connection error!'; err.style.display='block'; }
+}
+
+async function doSignup(){
+  const username = document.getElementById('s-name').value.trim();
+  const email    = document.getElementById('s-email').value.trim();
+  const pass     = document.getElementById('s-pass').value;
+  const age      = document.getElementById('s-age').value;
+  const err      = document.getElementById('signup-err');
+  err.style.display='none';
+  try{
+    const r = await fetch('/api/signup',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({username,email,password:pass,age})
+    });
+    const d = await r.json();
+    if(d.success){ window.location.href='/chat'; }
+    else{ err.textContent=d.error||'Signup failed!'; err.style.display='block'; }
+  }catch(e){ err.textContent='Connection error!'; err.style.display='block'; }
+}
+
+// Enter key on login/signup
+document.getElementById('l-pass').addEventListener('keydown',e=>{ if(e.key==='Enter') doLogin(); });
+document.getElementById('s-pass').addEventListener('keydown',e=>{ if(e.key==='Enter') doSignup(); });
+</script>
+</body>
+</html>

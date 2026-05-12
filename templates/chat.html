@@ -1,0 +1,1193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Groot AI 🌿</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Nunito:wght@400;600;700;800;900&family=Fredoka+One&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --forest:#0a1a0d; --moss:#1a3a1e; --bark:#2d5a32;
+  --leaf:#4a9e50; --bright-leaf:#6fcf74; --glow:#a8e6ab;
+  --golden:#f5c842; --amber:#e8a020; --cream:#f0e8d0;
+  --text:#d4edd6; --sub:#7aab7e; --muted:#3d6b41;
+  --panel:#0f2211; --card:#142916; --border:rgba(106,207,116,0.15);
+  --danger:#e85d4a; --info:#4ab8e8;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:'Nunito',sans-serif;
+  background:var(--forest);
+  height:100vh;display:flex;flex-direction:column;overflow:hidden;
+  color:var(--text);
+  background-image:
+    radial-gradient(ellipse at 20% 80%, rgba(30,80,35,0.4) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(20,60,25,0.3) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 50%, rgba(10,26,13,0.8) 0%, transparent 70%);
+}
+
+/* PARTICLES */
+.particles{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.particle{position:absolute;border-radius:50%;animation:float-up linear infinite;opacity:0}
+@keyframes float-up{
+  0%{opacity:0;transform:translateY(100vh) scale(0) rotate(0deg)}
+  10%{opacity:0.7}
+  90%{opacity:0.3}
+  100%{opacity:0;transform:translateY(-20vh) scale(1.5) rotate(360deg)}
+}
+
+/* TOP BAR */
+.topbar{
+  background:linear-gradient(90deg,rgba(10,26,13,0.95),rgba(20,57,22,0.95));
+  padding:0 16px;height:64px;
+  display:flex;align-items:center;justify-content:space-between;
+  border-bottom:1px solid rgba(106,207,116,0.2);
+  flex-shrink:0;
+  box-shadow:0 2px 30px rgba(0,0,0,0.6),0 0 40px rgba(74,158,80,0.1);
+  position:relative;z-index:10;
+  backdrop-filter:blur(10px);
+}
+.topbar-left{display:flex;align-items:center;gap:14px}
+
+/* GROOT AVATAR (Baby Groot SVG character) */
+.groot-avatar-wrap{
+  position:relative;width:52px;height:52px;flex-shrink:0;
+}
+.groot-avatar{
+  width:52px;height:52px;
+  filter:drop-shadow(0 0 12px rgba(111,207,116,0.7));
+  animation:groot-idle 3s ease-in-out infinite;
+  cursor:pointer;
+}
+@keyframes groot-idle{
+  0%,100%{transform:rotate(-3deg) scale(1)}
+  50%{transform:rotate(3deg) scale(1.06)}
+}
+.groot-avatar:hover{animation:groot-dance 0.5s ease-in-out infinite alternate}
+@keyframes groot-dance{
+  0%{transform:rotate(-8deg) scale(1.1)}
+  100%{transform:rotate(8deg) scale(1.15)}
+}
+.groot-glow-ring{
+  position:absolute;inset:-4px;border-radius:50%;
+  border:2px solid rgba(111,207,116,0.4);
+  animation:ring-pulse 2s ease-in-out infinite;
+}
+@keyframes ring-pulse{
+  0%,100%{transform:scale(1);opacity:0.4}
+  50%{transform:scale(1.15);opacity:0.9}
+}
+.groot-info h2{
+  font-family:'Fredoka One',cursive;font-size:20px;
+  background:linear-gradient(135deg,var(--bright-leaf),var(--golden));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+  text-shadow:none;
+  letter-spacing:1px;
+}
+.groot-info p{font-size:11px;color:var(--bright-leaf);display:flex;align-items:center;gap:5px;font-weight:700}
+.online-dot{width:7px;height:7px;background:var(--bright-leaf);border-radius:50%;animation:blink 1.5s infinite;box-shadow:0 0 6px var(--bright-leaf)}
+@keyframes blink{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.3;transform:scale(0.8)}}
+
+.topbar-right{display:flex;align-items:center;gap:8px}
+.user-badge{
+  background:rgba(74,158,80,0.15);border:1px solid rgba(74,158,80,0.3);
+  border-radius:20px;padding:6px 14px;font-size:13px;font-weight:800;color:var(--bright-leaf);
+}
+.btn-clear-chat{
+  background:rgba(232,93,74,0.1);border:1px solid rgba(232,93,74,0.3);
+  color:#e85d4a;padding:6px 12px;border-radius:20px;
+  font-family:'Nunito',sans-serif;font-size:12px;font-weight:800;cursor:pointer;transition:all .2s;
+}
+.btn-clear-chat:hover{background:rgba(232,93,74,0.25)}
+.btn-logout{
+  background:rgba(245,200,66,0.1);border:1px solid rgba(245,200,66,0.25);
+  color:var(--golden);padding:6px 12px;border-radius:20px;
+  font-family:'Nunito',sans-serif;font-size:12px;font-weight:800;cursor:pointer;transition:all .2s;
+}
+.btn-logout:hover{background:rgba(245,200,66,0.22)}
+
+/* LAYOUT */
+.main{display:flex;flex:1;overflow:hidden;position:relative;z-index:1}
+
+/* SIDEBAR */
+.sidebar{
+  width:230px;
+  background:linear-gradient(180deg,rgba(15,34,17,0.97),rgba(10,26,13,0.97));
+  border-right:1px solid rgba(74,158,80,0.12);
+  display:flex;flex-direction:column;padding:14px 10px;gap:4px;
+  flex-shrink:0;overflow-y:auto;
+  backdrop-filter:blur(8px);
+}
+.sidebar::-webkit-scrollbar{width:3px}
+.sidebar::-webkit-scrollbar-thumb{background:rgba(106,207,116,0.15);border-radius:2px}
+
+/* Baby Groot sitting in sidebar */
+.sidebar-groot{
+  display:flex;flex-direction:column;align-items:center;
+  padding:10px 0 6px;margin-bottom:6px;
+  border-bottom:1px solid rgba(74,158,80,0.1);
+}
+.sidebar-groot-img{
+  width:70px;height:70px;
+  filter:drop-shadow(0 0 10px rgba(111,207,116,0.5));
+  animation:sidebar-bob 4s ease-in-out infinite;
+}
+@keyframes sidebar-bob{
+  0%,100%{transform:translateY(0) rotate(-2deg)}
+  50%{transform:translateY(-5px) rotate(2deg)}
+}
+.sidebar-groot-text{
+  font-size:11px;color:var(--sub);margin-top:4px;font-weight:700;font-style:italic;
+}
+
+.sidebar-title{
+  font-size:9px;font-weight:900;letter-spacing:1.5px;
+  color:var(--bright-leaf);text-transform:uppercase;
+  padding:6px 8px 2px;opacity:0.7;
+}
+.quick-btn{
+  background:var(--card);border:1px solid rgba(74,158,80,0.1);
+  border-radius:10px;padding:8px 10px;cursor:pointer;transition:all .18s;
+  text-align:left;font-family:'Nunito',sans-serif;font-size:11.5px;
+  font-weight:700;color:#8ec992;width:100%;
+}
+.quick-btn:hover{
+  background:rgba(74,158,80,0.15);border-color:rgba(111,207,116,0.35);
+  color:#d4edd6;transform:translateX(3px);
+  box-shadow:0 0 10px rgba(74,158,80,0.15);
+}
+.quick-btn span{display:block;font-size:9.5px;color:var(--muted);margin-top:1px;font-weight:500}
+.sidebar-divider{height:1px;background:rgba(74,158,80,0.08);margin:4px 0}
+
+/* Random quote in sidebar */
+.sidebar-quote{
+  margin-top:auto;padding:10px;
+  background:rgba(74,158,80,0.06);border:1px solid rgba(74,158,80,0.1);
+  border-radius:10px;font-size:10px;color:var(--sub);font-style:italic;
+  line-height:1.5;text-align:center;
+}
+
+/* CHAT AREA */
+.chat-wrap{
+  flex:1;display:flex;flex-direction:column;overflow:hidden;
+  position:relative;
+}
+/* Forest background effect */
+.chat-bg{
+  position:absolute;inset:0;pointer-events:none;overflow:hidden;
+}
+.chat-bg::before{
+  content:'';position:absolute;inset:0;
+  background-image:
+    radial-gradient(circle at 10% 10%, rgba(74,158,80,0.04) 0%, transparent 40%),
+    radial-gradient(circle at 90% 90%, rgba(74,158,80,0.04) 0%, transparent 40%),
+    linear-gradient(rgba(111,207,116,0.02) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(111,207,116,0.02) 1px,transparent 1px);
+  background-size:100% 100%,100% 100%,50px 50px,50px 50px;
+}
+
+/* MESSAGES */
+.messages{
+  flex:1;overflow-y:auto;padding:20px 20px 10px;
+  display:flex;flex-direction:column;gap:14px;
+  position:relative;z-index:2;scroll-behavior:smooth;
+}
+.messages::-webkit-scrollbar{width:4px}
+.messages::-webkit-scrollbar-thumb{background:rgba(111,207,116,0.2);border-radius:2px}
+
+/* Welcome */
+.welcome{
+  display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:14px;padding:30px 20px;
+  text-align:center;animation:fadeIn .9s ease;flex:1;
+}
+@keyframes fadeIn{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+.welcome-groot{
+  width:140px;height:140px;
+  filter:drop-shadow(0 0 30px rgba(111,207,116,0.6));
+  animation:welcome-dance 2s ease-in-out infinite alternate;
+}
+@keyframes welcome-dance{
+  0%{transform:rotate(-6deg) scale(1) translateY(0)}
+  100%{transform:rotate(6deg) scale(1.08) translateY(-8px)}
+}
+.welcome h2{
+  font-family:'Fredoka One',cursive;font-size:28px;
+  background:linear-gradient(135deg,var(--bright-leaf),var(--golden));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.welcome-sub{font-size:14px;color:var(--sub);max-width:320px;line-height:1.6}
+.welcome-groot-says{
+  font-family:'Fredoka One',cursive;font-size:18px;color:var(--golden);
+  animation:golden-pulse 2s ease-in-out infinite;
+}
+@keyframes golden-pulse{0%,100%{opacity:0.8}50%{opacity:1}}
+.subject-pills{display:flex;gap:7px;flex-wrap:wrap;justify-content:center;margin-top:4px}
+.pill{
+  background:rgba(74,158,80,0.12);border:1px solid rgba(74,158,80,0.25);
+  border-radius:20px;padding:7px 14px;font-size:12px;font-weight:800;cursor:pointer;
+  transition:all .18s;color:var(--bright-leaf);
+}
+.pill:hover{
+  background:rgba(74,158,80,0.25);border-color:rgba(111,207,116,0.5);
+  color:#fff;transform:scale(1.06);box-shadow:0 0 15px rgba(74,158,80,0.3);
+}
+
+/* History banner */
+.hist-banner{
+  text-align:center;color:rgba(74,158,80,0.4);font-size:11px;
+  padding:8px 0;border-bottom:1px dashed rgba(74,158,80,0.12);
+  margin-bottom:4px;flex-shrink:0;display:flex;align-items:center;gap:8px;
+  justify-content:center;
+}
+.hist-banner::before,.hist-banner::after{content:'🌿';font-size:10px}
+
+/* BUBBLES */
+.msg-row{display:flex;gap:10px;align-items:flex-end;animation:popIn .3s cubic-bezier(.22,1,.36,1)}
+@keyframes popIn{from{opacity:0;transform:scale(.85) translateY(12px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.msg-row.user{flex-direction:row-reverse}
+.avatar-sm{width:34px;height:34px;border-radius:50%;flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.bot-av{background:linear-gradient(135deg,#1a4a1e,#2d7a32);box-shadow:0 0 12px rgba(74,158,80,0.5);border:1px solid rgba(74,158,80,0.3)}
+.bot-av svg{width:26px;height:26px}
+.user-av{background:linear-gradient(135deg,var(--amber),var(--golden));box-shadow:0 0 10px rgba(232,160,32,0.4);font-size:16px}
+.msg-col{max-width:74%}
+.bubble{padding:12px 16px;border-radius:18px;font-size:14px;line-height:1.7;word-break:break-word}
+.bot-bubble{
+  background:linear-gradient(135deg,rgba(20,41,22,0.95),rgba(15,34,17,0.95));
+  border:1px solid rgba(74,158,80,0.2);
+  border-bottom-left-radius:4px;color:var(--text);
+  box-shadow:0 4px 20px rgba(0,0,0,0.3),inset 0 1px 0 rgba(111,207,116,0.05);
+}
+.user-bubble{
+  background:linear-gradient(135deg,rgba(74,158,80,0.25),rgba(45,90,50,0.3));
+  border:1px solid rgba(111,207,116,0.2);
+  border-bottom-right-radius:4px;font-weight:700;color:var(--cream);
+  box-shadow:0 4px 15px rgba(0,0,0,0.2);
+}
+.msg-time{font-size:10px;color:rgba(74,158,80,0.5);margin-top:4px;padding:0 4px}
+.msg-row.user .msg-time{text-align:right}
+
+/* MEDIA inside bubbles */
+.extra-img{
+  margin-top:10px;max-width:100%;border-radius:12px;
+  border:1px solid rgba(74,158,80,0.15);display:block;
+  max-height:260px;object-fit:cover;cursor:pointer;
+  transition:transform .2s,box-shadow .2s;
+}
+.extra-img:hover{transform:scale(1.02);box-shadow:0 8px 30px rgba(0,0,0,0.5)}
+.extra-credit{font-size:10px;color:var(--muted);margin-top:4px}
+.extra-video-wrap{
+  margin-top:10px;position:relative;padding-bottom:56.25%;height:0;
+  overflow:hidden;border-radius:12px;border:1px solid rgba(74,158,80,0.15);
+}
+.extra-video-wrap iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:none}
+.extra-link{
+  display:inline-flex;align-items:center;gap:5px;margin-top:8px;
+  color:var(--bright-leaf);font-weight:700;font-size:13px;text-decoration:none;
+  background:rgba(74,158,80,0.1);border:1px solid rgba(74,158,80,0.2);
+  border-radius:8px;padding:5px 10px;transition:all .2s;
+}
+.extra-link:hover{background:rgba(74,158,80,0.2);transform:translateY(-1px)}
+
+/* Image action bar */
+.img-actions{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}
+.img-action-btn{
+  font-size:11px;padding:4px 10px;border-radius:8px;cursor:pointer;
+  border:1px solid rgba(74,158,80,0.25);background:rgba(74,158,80,0.1);
+  color:var(--bright-leaf);font-family:'Nunito',sans-serif;font-weight:700;
+  transition:all .15s;
+}
+.img-action-btn:hover{background:rgba(74,158,80,0.25)}
+
+/* Quiz options inside bubble */
+.quiz-options{display:flex;flex-direction:column;gap:6px;margin-top:10px}
+.quiz-opt{
+  background:rgba(74,158,80,0.08);border:1px solid rgba(74,158,80,0.2);
+  border-radius:10px;padding:8px 12px;cursor:pointer;
+  font-size:13px;font-weight:700;color:var(--text);transition:all .18s;
+  text-align:left;font-family:'Nunito',sans-serif;
+}
+.quiz-opt:hover{background:rgba(74,158,80,0.2);border-color:rgba(111,207,116,0.4);transform:translateX(4px)}
+.quiz-opt.correct{background:rgba(74,158,80,0.35);border-color:#6fcf74;color:#d4edd6}
+.quiz-opt.wrong{background:rgba(232,93,74,0.2);border-color:#e85d4a;color:#ffaaaa}
+
+/* Video share bar */
+.video-actions{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+
+/* Typing indicator */
+.typing-indicator{display:none;align-items:center;gap:8px;padding:8px 0}
+.typing-indicator.show{display:flex}
+.typing-groot{width:28px;height:28px;animation:groot-idle 1s ease-in-out infinite alternate}
+.typing-dots{display:flex;gap:5px}
+.typing-dots span{
+  width:8px;height:8px;background:var(--bright-leaf);border-radius:50%;
+  animation:typingBounce 0.9s infinite;
+  box-shadow:0 0 8px rgba(111,207,116,0.5);
+}
+.typing-dots span:nth-child(2){animation-delay:.15s}
+.typing-dots span:nth-child(3){animation-delay:.30s}
+@keyframes typingBounce{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-8px)}}
+.typing-text{font-size:12px;color:var(--bright-leaf);font-style:italic;font-weight:700}
+
+/* INPUT */
+.input-area{
+  padding:12px 18px 16px;
+  background:linear-gradient(180deg,rgba(10,26,13,0.9),rgba(15,34,17,0.98));
+  border-top:1px solid rgba(74,158,80,0.12);
+  position:relative;z-index:5;flex-shrink:0;
+  backdrop-filter:blur(10px);
+}
+.input-row{
+  display:flex;gap:8px;align-items:flex-end;
+  background:rgba(20,41,22,0.8);
+  border:2px solid rgba(74,158,80,0.2);
+  border-radius:20px;padding:8px 10px 8px 16px;
+  transition:border-color .2s,box-shadow .2s;
+}
+.input-row:focus-within{
+  border-color:rgba(111,207,116,0.5);
+  box-shadow:0 0 0 4px rgba(74,158,80,0.08),0 0 20px rgba(74,158,80,0.1);
+}
+#msg-input{
+  flex:1;background:transparent;border:none;outline:none;
+  font-family:'Nunito',sans-serif;font-size:14.5px;color:var(--text);
+  resize:none;max-height:100px;padding:4px 0;line-height:1.5;
+}
+#msg-input::placeholder{color:rgba(74,158,80,0.4)}
+.btn-send{
+  width:44px;height:44px;border-radius:50%;border:none;
+  background:linear-gradient(135deg,var(--leaf),var(--bright-leaf));
+  color:#0a1a0d;font-size:18px;cursor:pointer;
+  transition:all .2s;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 4px 16px rgba(74,158,80,0.4),0 0 20px rgba(74,158,80,0.2);
+  font-weight:900;
+}
+.btn-send:hover{transform:scale(1.12);box-shadow:0 6px 20px rgba(74,158,80,0.6)}
+.btn-send:active{transform:scale(.95)}
+.btn-send:disabled{opacity:.4;transform:none;cursor:default;box-shadow:none}
+.input-hint{text-align:center;font-size:10px;color:rgba(74,158,80,0.3);margin-top:6px}
+
+/* IMAGE LIGHTBOX */
+.lightbox{
+  display:none;position:fixed;inset:0;z-index:1000;
+  background:rgba(0,0,0,0.92);
+  backdrop-filter:blur(8px);
+  align-items:center;justify-content:center;flex-direction:column;gap:16px;
+}
+.lightbox.show{display:flex}
+.lightbox-img{
+  max-width:90vw;max-height:75vh;border-radius:16px;
+  box-shadow:0 20px 60px rgba(0,0,0,0.7);
+  border:1px solid rgba(74,158,80,0.3);
+}
+.lightbox-desc{
+  max-width:600px;text-align:center;color:var(--text);
+  font-size:14px;line-height:1.6;padding:0 20px;
+}
+.lightbox-actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.lb-btn{
+  padding:10px 20px;border-radius:12px;cursor:pointer;font-weight:800;
+  font-family:'Nunito',sans-serif;font-size:13px;border:none;transition:all .2s;
+}
+.lb-btn-close{background:rgba(255,255,255,0.1);color:#fff}
+.lb-btn-close:hover{background:rgba(255,255,255,0.2)}
+.lb-btn-share{background:linear-gradient(135deg,#4267B2,#5b7fcb);color:#fff}
+.lb-btn-share:hover{transform:scale(1.05)}
+.lb-btn-copy{background:rgba(74,158,80,0.3);color:var(--bright-leaf);border:1px solid rgba(74,158,80,0.4)}
+.lb-btn-copy:hover{background:rgba(74,158,80,0.5)}
+.lb-btn-tw{background:linear-gradient(135deg,#1da1f2,#0d8bd9);color:#fff}
+.lb-btn-tw:hover{transform:scale(1.05)}
+.lb-credit{font-size:11px;color:rgba(255,255,255,0.4);margin-top:4px}
+
+/* DELETE CHAT WARNING MODAL */
+.modal-overlay{
+  display:none;position:fixed;inset:0;z-index:2000;
+  background:rgba(0,0,0,0.85);backdrop-filter:blur(6px);
+  align-items:center;justify-content:center;
+}
+.modal-overlay.show{display:flex}
+.modal-box{
+  background:linear-gradient(135deg,rgba(20,41,22,0.98),rgba(10,26,13,0.98));
+  border:2px solid rgba(232,93,74,0.4);border-radius:20px;
+  padding:30px;max-width:400px;width:90%;text-align:center;
+  box-shadow:0 20px 60px rgba(0,0,0,0.8);
+  animation:modal-in .3s cubic-bezier(.22,1,.36,1);
+}
+@keyframes modal-in{from{opacity:0;transform:scale(.85) translateY(20px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.modal-icon{font-size:50px;margin-bottom:12px;animation:wiggle .5s ease-in-out infinite alternate}
+@keyframes wiggle{0%{transform:rotate(-5deg)}100%{transform:rotate(5deg)}}
+.modal-title{font-family:'Fredoka One',cursive;font-size:22px;color:#e85d4a;margin-bottom:10px}
+.modal-msg{font-size:13px;color:var(--sub);line-height:1.6;margin-bottom:20px}
+.modal-warning{
+  background:rgba(232,93,74,0.1);border:1px solid rgba(232,93,74,0.3);
+  border-radius:10px;padding:10px;font-size:12px;color:#ff9988;
+  margin-bottom:20px;font-weight:700;
+}
+.modal-btns{display:flex;gap:10px;justify-content:center}
+.modal-btn{
+  padding:10px 24px;border-radius:12px;border:none;cursor:pointer;
+  font-family:'Nunito',sans-serif;font-weight:800;font-size:14px;transition:all .2s;
+}
+.modal-btn-cancel{background:rgba(74,158,80,0.15);color:var(--bright-leaf);border:1px solid rgba(74,158,80,0.3)}
+.modal-btn-cancel:hover{background:rgba(74,158,80,0.3)}
+.modal-btn-delete{background:rgba(232,93,74,0.2);color:#e85d4a;border:1px solid rgba(232,93,74,0.4)}
+.modal-btn-delete:hover{background:rgba(232,93,74,0.4)}
+
+/* Copy toast */
+.msg.correction{
+  align-self:flex-start;
+  background:rgba(74,158,80,0.08);
+  border:1px solid rgba(111,207,116,0.2);
+  border-radius:8px;
+  padding:4px 12px;
+  font-size:11px;
+  color:var(--sub);
+  font-style:italic;
+  margin-bottom:-8px;
+  max-width:80%;
+}
+.toast{
+  position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);
+  background:linear-gradient(135deg,var(--bark),var(--leaf));
+  color:#fff;padding:10px 20px;border-radius:30px;font-size:13px;font-weight:800;
+  opacity:0;transition:all .3s;z-index:3000;pointer-events:none;
+  box-shadow:0 4px 20px rgba(0,0,0,0.4);
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+
+<!-- PARTICLES -->
+<div class="particles" id="particles"></div>
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
+  <img class="lightbox-img" id="lb-img" src="" alt=""/>
+  <div class="lightbox-desc" id="lb-desc"></div>
+  <div class="lightbox-actions">
+    <button class="lb-btn lb-btn-copy" onclick="copyImgLink()">🔗 Copy Link</button>
+    <button class="lb-btn lb-btn-share" onclick="shareOnFacebook()">📘 Facebook</button>
+    <button class="lb-btn lb-btn-tw" onclick="shareOnTwitter()">🐦 Twitter</button>
+    <button class="lb-btn lb-btn-close" onclick="closeLightbox()">✕ Close</button>
+  </div>
+  <div class="lb-credit" id="lb-credit"></div>
+</div>
+
+<!-- DELETE CONFIRMATION MODAL -->
+<div class="modal-overlay" id="deleteModal">
+  <div class="modal-box">
+    <div class="modal-icon">🌿</div>
+    <div class="modal-title">Clear Chat & My Data?</div>
+    <div class="modal-msg">Groot will forget your chat history and personal info...</div>
+    <div class="modal-warning">⚠️ This deletes: all chat messages, your name, age, pet, hobbies, and everything you shared with Groot. Your login account is kept safe. This cannot be undone!</div>
+    <div class="modal-btns">
+      <button class="modal-btn modal-btn-cancel" onclick="closeDeleteModal()">Keep Everything</button>
+      <button class="modal-btn modal-btn-delete" onclick="confirmDeleteChat()">🗑️ Clear My Data</button>
+    </div>
+  </div>
+</div>
+
+<!-- COPY TOAST -->
+<div class="toast" id="toast"></div>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="groot-avatar-wrap">
+      <svg class="groot-avatar" viewBox="0 0 100 110" xmlns="http://www.w3.org/2000/svg">
+        <!-- Baby Groot SVG character -->
+        <!-- Body/Pot -->
+        <ellipse cx="50" cy="95" rx="22" ry="12" fill="#5a3a1a"/>
+        <rect x="32" y="83" width="36" height="20" rx="6" fill="#6b4523"/>
+        <!-- Soil -->
+        <ellipse cx="50" cy="83" rx="18" ry="5" fill="#3d2510"/>
+        <!-- Legs/Roots coming out of pot -->
+        <path d="M35 88 Q28 92 25 100" stroke="#4a7a3a" stroke-width="3" fill="none" stroke-linecap="round"/>
+        <path d="M65 88 Q72 92 75 100" stroke="#4a7a3a" stroke-width="3" fill="none" stroke-linecap="round"/>
+        <!-- Trunk/Body -->
+        <path d="M38 84 Q36 70 38 58 Q40 50 50 48 Q60 50 62 58 Q64 70 62 84" fill="#5a8a45"/>
+        <!-- Arms -->
+        <path d="M40 65 Q28 60 22 65 Q18 68 20 72" stroke="#5a8a45" stroke-width="7" fill="none" stroke-linecap="round"/>
+        <path d="M60 65 Q72 60 78 65 Q82 68 80 72" stroke="#5a8a45" stroke-width="7" fill="none" stroke-linecap="round"/>
+        <!-- Hands -->
+        <circle cx="20" cy="73" r="5" fill="#4a7a3a"/>
+        <circle cx="80" cy="73" r="5" fill="#4a7a3a"/>
+        <!-- Small fingers -->
+        <circle cx="16" cy="70" r="3" fill="#4a7a3a"/>
+        <circle cx="14" cy="75" r="2.5" fill="#4a7a3a"/>
+        <circle cx="84" cy="70" r="3" fill="#4a7a3a"/>
+        <circle cx="86" cy="75" r="2.5" fill="#4a7a3a"/>
+        <!-- Head -->
+        <ellipse cx="50" cy="36" rx="20" ry="22" fill="#5a8a45"/>
+        <!-- Bark texture on head -->
+        <path d="M36 28 Q40 22 44 28" stroke="#3d6a30" stroke-width="1.5" fill="none"/>
+        <path d="M42 20 Q46 14 50 20" stroke="#3d6a30" stroke-width="1.5" fill="none"/>
+        <path d="M52 18 Q56 12 60 18" stroke="#3d6a30" stroke-width="1.5" fill="none"/>
+        <path d="M58 28 Q62 22 66 28" stroke="#3d6a30" stroke-width="1.5" fill="none"/>
+        <!-- Eyes -->
+        <ellipse cx="42" cy="36" rx="5" ry="6" fill="#1a0a00"/>
+        <ellipse cx="58" cy="36" rx="5" ry="6" fill="#1a0a00"/>
+        <!-- Eye shine -->
+        <circle cx="44" cy="34" r="2" fill="#fff" opacity="0.9"/>
+        <circle cx="60" cy="34" r="2" fill="#fff" opacity="0.9"/>
+        <circle cx="43" cy="37" r="1" fill="#fff" opacity="0.5"/>
+        <circle cx="59" cy="37" r="1" fill="#fff" opacity="0.5"/>
+        <!-- Nose -->
+        <ellipse cx="50" cy="43" rx="3" ry="2" fill="#3d6a30"/>
+        <!-- Mouth - smile -->
+        <path d="M43 48 Q50 54 57 48" stroke="#3d6a30" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+        <!-- Leaves on head -->
+        <ellipse cx="35" cy="18" rx="8" ry="5" fill="#6fcf74" transform="rotate(-30 35 18)"/>
+        <ellipse cx="50" cy="12" rx="7" ry="4" fill="#5ab860" transform="rotate(5 50 12)"/>
+        <ellipse cx="65" cy="16" rx="8" ry="5" fill="#7dd982" transform="rotate(25 65 16)"/>
+        <ellipse cx="42" cy="10" rx="5" ry="3" fill="#4caf52" transform="rotate(-15 42 10)"/>
+        <ellipse cx="60" cy="9" rx="5" ry="3" fill="#8ae88e" transform="rotate(20 60 9)"/>
+        <!-- Tiny flower on top -->
+        <circle cx="50" cy="6" r="4" fill="#f5c842"/>
+        <circle cx="44" cy="5" r="3" fill="#f5c842"/>
+        <circle cx="56" cy="5" r="3" fill="#f5c842"/>
+        <circle cx="50" cy="6" r="2.5" fill="#e8a020"/>
+        <!-- Bark lines on body -->
+        <path d="M42 55 Q50 50 58 55" stroke="#3d6a30" stroke-width="1" fill="none"/>
+        <path d="M40 65 Q50 60 60 65" stroke="#3d6a30" stroke-width="1" fill="none"/>
+        <path d="M41 75 Q50 70 59 75" stroke="#3d6a30" stroke-width="1" fill="none"/>
+      </svg>
+      <div class="groot-glow-ring"></div>
+    </div>
+    <div class="groot-info">
+      <h2>Groot AI</h2>
+      <p><span class="online-dot"></span> I am Groot! (Online)</p>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <div class="user-badge">🌿 {{ username }}</div>
+    <button class="btn-clear-chat" onclick="showDeleteModal()">🗑️ Clear Chat</button>
+    <button class="btn-logout" onclick="doLogout()">🚪 Logout</button>
+  </div>
+</div>
+
+<div class="main">
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-groot">
+      <svg class="sidebar-groot-img" viewBox="0 0 80 90" xmlns="http://www.w3.org/2000/svg">
+        <ellipse cx="40" cy="78" rx="18" ry="10" fill="#5a3a1a"/>
+        <rect x="25" y="68" width="30" height="16" rx="5" fill="#6b4523"/>
+        <ellipse cx="40" cy="68" rx="15" ry="4" fill="#3d2510"/>
+        <path d="M30 72 Q23 76 20 82" stroke="#4a7a3a" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+        <path d="M50 72 Q57 76 60 82" stroke="#4a7a3a" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+        <path d="M30 68 Q28 56 30 46 Q32 40 40 38 Q48 40 50 46 Q52 56 50 68" fill="#5a8a45"/>
+        <path d="M32 52 Q22 48 17 52" stroke="#5a8a45" stroke-width="6" fill="none" stroke-linecap="round"/>
+        <path d="M48 52 Q58 48 63 52" stroke="#5a8a45" stroke-width="6" fill="none" stroke-linecap="round"/>
+        <circle cx="16" cy="53" r="4" fill="#4a7a3a"/>
+        <circle cx="64" cy="53" r="4" fill="#4a7a3a"/>
+        <ellipse cx="40" cy="27" rx="16" ry="18" fill="#5a8a45"/>
+        <path d="M30 20 Q33 15 36 20" stroke="#3d6a30" stroke-width="1.5" fill="none"/>
+        <path d="M36 14 Q40 9 44 14" stroke="#3d6a30" stroke-width="1.5" fill="none"/>
+        <path d="M44 13 Q48 8 52 13" stroke="#3d6a30" stroke-width="1.5" fill="none"/>
+        <ellipse cx="33" cy="27" rx="4" ry="5" fill="#1a0a00"/>
+        <ellipse cx="47" cy="27" rx="4" ry="5" fill="#1a0a00"/>
+        <circle cx="35" cy="25" r="1.5" fill="#fff" opacity="0.9"/>
+        <circle cx="49" cy="25" r="1.5" fill="#fff" opacity="0.9"/>
+        <ellipse cx="40" cy="33" rx="2.5" ry="1.5" fill="#3d6a30"/>
+        <path d="M34 37 Q40 42 46 37" stroke="#3d6a30" stroke-width="2" fill="none" stroke-linecap="round"/>
+        <ellipse cx="27" cy="12" rx="7" ry="4" fill="#6fcf74" transform="rotate(-35 27 12)"/>
+        <ellipse cx="40" cy="8" rx="6" ry="3.5" fill="#5ab860"/>
+        <ellipse cx="53" cy="11" rx="7" ry="4" fill="#7dd982" transform="rotate(30 53 11)"/>
+        <circle cx="40" cy="4" r="3" fill="#f5c842"/>
+        <circle cx="36" cy="3" r="2.5" fill="#f5c842"/>
+        <circle cx="44" cy="3" r="2.5" fill="#f5c842"/>
+        <circle cx="40" cy="4" r="2" fill="#e8a020"/>
+      </svg>
+      <div class="sidebar-groot-text">I am Groot! 🌿</div>
+    </div>
+
+    <div class="sidebar-title">📚 Quick Learn</div>
+    <button class="quick-btn" onclick="sendQuick('What is addition?')">➕ Addition<span>Learn to add numbers</span></button>
+    <button class="quick-btn" onclick="sendQuick('What is subtraction?')">➖ Subtraction<span>Taking away numbers</span></button>
+    <button class="quick-btn" onclick="sendQuick('What is multiplication?')">✖️ Multiply<span>Fast adding!</span></button>
+    <button class="quick-btn" onclick="sendQuick('What is a noun?')">📝 Nouns<span>Naming words</span></button>
+    <button class="quick-btn" onclick="sendQuick('What is a verb?')">🏃 Verbs<span>Action words</span></button>
+    <button class="quick-btn" onclick="sendQuick('What are the planets?')">🪐 Planets<span>Our solar system</span></button>
+    <button class="quick-btn" onclick="sendQuick('What is photosynthesis?')">🌱 Plants<span>How plants make food</span></button>
+    <button class="quick-btn" onclick="sendQuick('What is gravity?')">🌍 Gravity<span>Why things fall</span></button>
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-title">🎯 Fun</div>
+    <button class="quick-btn" onclick="sendQuick('Give me a science quiz')">🎯 Quiz Me!<span>Test your knowledge</span></button>
+    <button class="quick-btn" onclick="sendQuick('Tell me a random animal fact')">🐾 Animal Fact<span>Nature &amp; wildlife</span></button>
+    <button class="quick-btn" onclick="sendQuick('Show me astronomy picture of the day')">🚀 NASA Pic<span>Space wonders</span></button>
+    <button class="quick-btn" onclick="sendQuick('Show me a fun image')">🖼️ Random Image<span>Cool pictures</span></button>
+    <button class="quick-btn" onclick="sendQuick('Play me a fun video about animals')">🎬 Fun Video<span>Learning videos</span></button>
+    <button class="quick-btn" onclick="sendQuick('Tell me a fun fact')">💡 Fun Fact<span>Cool things!</span></button>
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-title">🏫 Teach Me</div>
+    <button class="quick-btn" onclick="sendQuick('Teach me about addition')">➕ Teach: Maths<span>Learn step by step</span></button>
+    <button class="quick-btn" onclick="sendQuick('Teach me about photosynthesis')">🌱 Teach: Science<span>Plants &amp; nature</span></button>
+    <button class="quick-btn" onclick="sendQuick('Teach me about nouns')">📝 Teach: English<span>Words &amp; grammar</span></button>
+    <button class="quick-btn" onclick="sendQuick('Teach me about the solar system')">🪐 Teach: Space<span>Stars &amp; planets</span></button>
+    <button class="quick-btn" onclick="sendQuick('Teach me about animals')">🦁 Teach: Animals<span>Wildlife &amp; nature</span></button>
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-title">💡 Groot Says</div>
+    <div class="sidebar-quote" id="groot-quote">Loading wisdom from the forest... 🌿</div>
+  </div>
+
+  <!-- CHAT -->
+  <div class="chat-wrap">
+    <div class="chat-bg"></div>
+    <div class="messages" id="messages">
+      <div class="welcome" id="welcome-screen">
+        <svg class="welcome-groot" viewBox="0 0 100 110" xmlns="http://www.w3.org/2000/svg">
+          <ellipse cx="50" cy="95" rx="22" ry="12" fill="#5a3a1a"/>
+          <rect x="32" y="83" width="36" height="20" rx="6" fill="#6b4523"/>
+          <ellipse cx="50" cy="83" rx="18" ry="5" fill="#3d2510"/>
+          <path d="M35 88 Q28 92 25 100" stroke="#4a7a3a" stroke-width="3" fill="none" stroke-linecap="round"/>
+          <path d="M65 88 Q72 92 75 100" stroke="#4a7a3a" stroke-width="3" fill="none" stroke-linecap="round"/>
+          <path d="M38 84 Q36 70 38 58 Q40 50 50 48 Q60 50 62 58 Q64 70 62 84" fill="#5a8a45"/>
+          <path d="M40 65 Q28 60 22 65 Q18 68 20 72" stroke="#5a8a45" stroke-width="7" fill="none" stroke-linecap="round"/>
+          <path d="M60 65 Q72 60 78 65 Q82 68 80 72" stroke="#5a8a45" stroke-width="7" fill="none" stroke-linecap="round"/>
+          <circle cx="20" cy="73" r="5" fill="#4a7a3a"/>
+          <circle cx="80" cy="73" r="5" fill="#4a7a3a"/>
+          <circle cx="16" cy="70" r="3" fill="#4a7a3a"/>
+          <circle cx="14" cy="75" r="2.5" fill="#4a7a3a"/>
+          <circle cx="84" cy="70" r="3" fill="#4a7a3a"/>
+          <circle cx="86" cy="75" r="2.5" fill="#4a7a3a"/>
+          <ellipse cx="50" cy="36" rx="20" ry="22" fill="#5a8a45"/>
+          <path d="M36 28 Q40 22 44 28" stroke="#3d6a30" stroke-width="1.5" fill="none"/>
+          <path d="M42 20 Q46 14 50 20" stroke="#3d6a30" stroke-width="1.5" fill="none"/>
+          <path d="M52 18 Q56 12 60 18" stroke="#3d6a30" stroke-width="1.5" fill="none"/>
+          <path d="M58 28 Q62 22 66 28" stroke="#3d6a30" stroke-width="1.5" fill="none"/>
+          <ellipse cx="42" cy="36" rx="5" ry="6" fill="#1a0a00"/>
+          <ellipse cx="58" cy="36" rx="5" ry="6" fill="#1a0a00"/>
+          <circle cx="44" cy="34" r="2" fill="#fff" opacity="0.9"/>
+          <circle cx="60" cy="34" r="2" fill="#fff" opacity="0.9"/>
+          <circle cx="43" cy="37" r="1" fill="#fff" opacity="0.5"/>
+          <circle cx="59" cy="37" r="1" fill="#fff" opacity="0.5"/>
+          <ellipse cx="50" cy="43" rx="3" ry="2" fill="#3d6a30"/>
+          <path d="M43 48 Q50 54 57 48" stroke="#3d6a30" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+          <ellipse cx="35" cy="18" rx="8" ry="5" fill="#6fcf74" transform="rotate(-30 35 18)"/>
+          <ellipse cx="50" cy="12" rx="7" ry="4" fill="#5ab860" transform="rotate(5 50 12)"/>
+          <ellipse cx="65" cy="16" rx="8" ry="5" fill="#7dd982" transform="rotate(25 65 16)"/>
+          <ellipse cx="42" cy="10" rx="5" ry="3" fill="#4caf52" transform="rotate(-15 42 10)"/>
+          <ellipse cx="60" cy="9" rx="5" ry="3" fill="#8ae88e" transform="rotate(20 60 9)"/>
+          <circle cx="50" cy="6" r="4" fill="#f5c842"/>
+          <circle cx="44" cy="5" r="3" fill="#f5c842"/>
+          <circle cx="56" cy="5" r="3" fill="#f5c842"/>
+          <circle cx="50" cy="6" r="2.5" fill="#e8a020"/>
+          <path d="M42 55 Q50 50 58 55" stroke="#3d6a30" stroke-width="1" fill="none"/>
+          <path d="M40 65 Q50 60 60 65" stroke="#3d6a30" stroke-width="1" fill="none"/>
+          <path d="M41 75 Q50 70 59 75" stroke="#3d6a30" stroke-width="1" fill="none"/>
+        </svg>
+        <div class="welcome-groot-says">🌿 I am Groot!</div>
+        <h2>Hello, {{ username }}! 👋</h2>
+        <p class="welcome-sub">I'm <strong>Groot</strong>, your super smart forest friend! I understand spelling &amp; grammar mistakes, remember everything you tell me, and learn from our chats! 🌟</p>
+        <div class="subject-pills">
+          <span class="pill" onclick="sendQuick('Teach me about addition')">🔢 Maths</span>
+          <span class="pill" onclick="sendQuick('Teach me about nouns')">📖 English</span>
+          <span class="pill" onclick="sendQuick('Teach me about photosynthesis')">🔬 Science</span>
+          <span class="pill" onclick="sendQuick('Teach me about the solar system')">🪐 Space</span>
+          <span class="pill" onclick="sendQuick('Give me a quiz')">🎯 Quiz</span>
+          <span class="pill" onclick="sendQuick('Give me a science quiz')">🎯 Quiz</span>
+          <span class="pill" onclick="sendQuick('Tell me an animal fact')">🐾 Animals</span>
+        </div>
+      </div>
+      <div class="typing-indicator" id="typing">
+        <div class="avatar-sm bot-av">
+          <svg viewBox="0 0 40 44" xmlns="http://www.w3.org/2000/svg" width="28" height="28">
+            <ellipse cx="20" cy="13" rx="9" ry="10" fill="#5a8a45"/>
+            <ellipse cx="16" cy="13" rx="2" ry="2.5" fill="#1a0a00"/>
+            <ellipse cx="24" cy="13" rx="2" ry="2.5" fill="#1a0a00"/>
+            <circle cx="17" cy="12" r="1" fill="#fff" opacity="0.9"/>
+            <circle cx="25" cy="12" r="1" fill="#fff" opacity="0.9"/>
+            <path d="M17 18 Q20 21 23 18" stroke="#3d6a30" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+            <ellipse cx="14" cy="6" rx="4" ry="2.5" fill="#6fcf74" transform="rotate(-30 14 6)"/>
+            <ellipse cx="20" cy="4" rx="3.5" ry="2" fill="#5ab860"/>
+            <ellipse cx="26" cy="5.5" rx="4" ry="2.5" fill="#7dd982" transform="rotate(25 26 5.5)"/>
+            <circle cx="20" cy="2" r="2.5" fill="#f5c842"/>
+            <path d="M14 22 Q10 20 8 23" stroke="#5a8a45" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+            <path d="M26 22 Q30 20 32 23" stroke="#5a8a45" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+            <path d="M16 34 Q14 28 15 23 Q16 20 20 19 Q24 20 25 23 Q26 28 24 34" fill="#5a8a45"/>
+            <ellipse cx="20" cy="38" rx="10" ry="5" fill="#5a3a1a"/>
+            <rect x="13" y="33" width="14" height="9" rx="3" fill="#6b4523"/>
+          </svg>
+        </div>
+        <div>
+          <div class="typing-dots"><span></span><span></span><span></span></div>
+          <div class="typing-text">Groot is thinking… 🌿</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="input-area">
+      <div class="input-row">
+        <textarea id="msg-input" placeholder="Ask Groot anything! I fix spelling &amp; grammar mistakes automatically 🌿" rows="1"
+          onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+        <button class="btn-send" id="send-btn" onclick="sendMessage()">➤</button>
+      </div>
+      <div class="input-hint">Enter to send · Shift+Enter for new line · Groot understands all typing styles!</div>
+    </div>
+  </div>
+</div>
+
+<script>
+const messagesEl = document.getElementById('messages');
+const inputEl    = document.getElementById('msg-input');
+const sendBtn    = document.getElementById('send-btn');
+const typingEl   = document.getElementById('typing');
+const welcomeEl  = document.getElementById('welcome-screen');
+let welcomed = false;
+let currentLightboxImg = '';
+let currentLightboxAlt = '';
+let currentActiveQuiz = null;
+
+/* ── PARTICLES ── */
+(function(){
+  const p = document.getElementById('particles');
+  const colors = ['#6fcf74','#a8e6ab','#f5c842','#4a9e50','#d4edd6'];
+  const symbols = ['🌿','✨','🍃','💚','⭐','🌱'];
+  for(let i = 0; i < 18; i++){
+    const el = document.createElement('div');
+    const isSymbol = Math.random() > 0.6;
+    if(isSymbol){
+      el.style.cssText = `
+        position:absolute;left:${Math.random()*100}%;
+        font-size:${8+Math.random()*14}px;
+        animation:float-up ${10+Math.random()*15}s linear infinite;
+        animation-delay:${-Math.random()*15}s;
+        opacity:0;pointer-events:none;
+      `;
+      el.textContent = symbols[Math.floor(Math.random()*symbols.length)];
+    } else {
+      const size = 3 + Math.random()*6;
+      el.style.cssText = `
+        position:absolute;left:${Math.random()*100}%;
+        width:${size}px;height:${size}px;
+        background:${colors[Math.floor(Math.random()*colors.length)]};
+        border-radius:50%;
+        animation:float-up ${12+Math.random()*18}s linear infinite;
+        animation-delay:${-Math.random()*18}s;
+        opacity:0;
+      `;
+    }
+    p.appendChild(el);
+  }
+})();
+
+/* ── SIDEBAR QUOTES ── */
+const grootQuotes = [
+  '"I am Groot!" 🌿 (I love learning with you!)',
+  '"We are Groot!" 💚 (Together we are stronger!)',
+  '"I... am... Groot." 🌟 (You can do anything!)',
+  '"I AM GROOT!" 🎯 (Never give up learning!)',
+  '"Groot!" 🍃 (Curiosity grows like a tree!)',
+  '"I am Groot?" 🔬 (Science is amazing!)',
+  '"Groot... I am Groot." 📚 (Reading opens worlds!)',
+  '"I am Groot!" ⭐ (You are my favorite student!)',
+  '"I... am Groot!" 🚀 (Reach for the stars!)',
+  '"We are Groot!" 🌱 (Small steps lead to big growth!)',
+];
+document.getElementById('groot-quote').textContent = grootQuotes[Math.floor(Math.random()*grootQuotes.length)];
+setInterval(()=>{
+  const q = document.getElementById('groot-quote');
+  q.style.opacity = '0';
+  setTimeout(()=>{
+    q.textContent = grootQuotes[Math.floor(Math.random()*grootQuotes.length)];
+    q.style.opacity = '1';
+    q.style.transition = 'opacity 0.5s';
+  }, 300);
+}, 8000);
+
+/* ── HELPERS ── */
+function autoResize(el){ el.style.height='auto'; el.style.height=Math.min(el.scrollHeight,100)+'px'; }
+function scrollBottom(smooth=true){ 
+  messagesEl.scrollTo({top: messagesEl.scrollHeight, behavior: smooth ? 'smooth' : 'auto'});
+}
+function handleKey(e){ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); sendMessage(); } }
+function timeStr(d){ return (d ? new Date(d) : new Date()).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}); }
+
+function esc(s){
+  return (s||'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function md(t){
+  let h = esc(t);
+  h = h.replace(/\*\*([^*]+)\*\*/g,'<b>$1</b>');
+  h = h.replace(/_([^_\n]+)_/g,'<i>$1</i>');
+  h = h.replace(/\n/g,'<br>');
+  return h;
+}
+function hideWelcome(){
+  if(!welcomed){ welcomed=true; welcomeEl.style.display='none'; }
+}
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2500);
+}
+
+/* ── LIGHTBOX ── */
+function openLightbox(imgSrc, desc, credit){
+  currentLightboxImg = imgSrc;
+  currentLightboxAlt = desc || '';
+  document.getElementById('lb-img').src = imgSrc;
+  document.getElementById('lb-desc').innerHTML = md(desc || '');
+  document.getElementById('lb-credit').textContent = credit || '';
+  document.getElementById('lightbox').classList.add('show');
+}
+function closeLightbox(e){
+  if(!e || e.target.id==='lightbox' || e.currentTarget.classList.contains('lb-btn-close')){
+    document.getElementById('lightbox').classList.remove('show');
+  }
+}
+function copyImgLink(){
+  navigator.clipboard.writeText(currentLightboxImg).then(()=>{
+    showToast('🔗 Image link copied!');
+  }).catch(()=>{
+    prompt('Copy this link:', currentLightboxImg);
+  });
+}
+function shareOnFacebook(){
+  const url = encodeURIComponent(currentLightboxImg);
+  window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank', 'width=600,height=400');
+}
+function shareOnTwitter(){
+  const url = encodeURIComponent(currentLightboxImg);
+  const text = encodeURIComponent('Check out this image from Groot AI! 🌿');
+  window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank', 'width=600,height=400');
+}
+// Close lightbox on Escape
+document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeLightbox({target:{id:'lightbox'}}); });
+
+/* ── DELETE MODAL ── */
+function showDeleteModal(){
+  document.getElementById('deleteModal').classList.add('show');
+}
+function closeDeleteModal(){
+  document.getElementById('deleteModal').classList.remove('show');
+}
+async function confirmDeleteChat(){
+  closeDeleteModal();
+  try{
+    const res = await fetch('/api/history/delete', {method:'DELETE'});
+    const data = await res.json();
+    if(data.success){
+      messagesEl.innerHTML = '';
+      messagesEl.appendChild(typingEl);
+      welcomed = false;
+      welcomeEl.style.display = 'flex';
+      messagesEl.insertBefore(welcomeEl, typingEl);
+      currentActiveQuiz = null;
+      showToast('🌿 Chat & personal data cleared! Groot starts fresh 🌱');
+    }
+  } catch(e){
+    showToast('Something went wrong. Try again!');
+  }
+}
+
+/* ── GROOT AVATAR EASTER EGG ── */
+document.querySelector('.groot-avatar').addEventListener('click', ()=>{
+  const replies = [
+    '🌿 I am Groot!','💚 We are Groot!','🌟 I... am... Groot!','🎵 I am Groot!',
+    '🍃 Groot Groot!','⭐ I AM GROOT!'
+  ];
+  showToast(replies[Math.floor(Math.random()*replies.length)]);
+});
+
+/* ── BUILD MESSAGE ── */
+function appendMsg(text, sender, opts){
+  opts = opts || {};
+  hideWelcome();
+
+  // Handle correction messages (grammar/spelling auto-fix note)
+  if(sender === 'correction'){
+    const note = document.createElement('div');
+    note.className = 'msg correction';
+    note.innerHTML = md(text);
+    messagesEl.insertBefore(note, typingEl);
+    scrollBottom();
+    return;
+  }
+
+  const row = document.createElement('div');
+  row.className = 'msg-row ' + sender;
+
+  // Avatar
+  const av = document.createElement('div');
+  av.className = 'avatar-sm ' + (sender==='bot' ? 'bot-av' : 'user-av');
+  if(sender==='bot'){
+    av.innerHTML = `<svg viewBox="0 0 40 44" xmlns="http://www.w3.org/2000/svg" width="26" height="26">
+      <ellipse cx="20" cy="13" rx="9" ry="10" fill="#5a8a45"/>
+      <ellipse cx="16" cy="13" rx="2" ry="2.5" fill="#1a0a00"/>
+      <ellipse cx="24" cy="13" rx="2" ry="2.5" fill="#1a0a00"/>
+      <circle cx="17" cy="12" r="1" fill="#fff" opacity="0.9"/>
+      <circle cx="25" cy="12" r="1" fill="#fff" opacity="0.9"/>
+      <path d="M17 18 Q20 21 23 18" stroke="#3d6a30" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+      <ellipse cx="14" cy="6" rx="4" ry="2.5" fill="#6fcf74" transform="rotate(-30 14 6)"/>
+      <ellipse cx="20" cy="4" rx="3.5" ry="2" fill="#5ab860"/>
+      <ellipse cx="26" cy="5.5" rx="4" ry="2.5" fill="#7dd982" transform="rotate(25 26 5.5)"/>
+      <circle cx="20" cy="2" r="2.5" fill="#f5c842"/>
+    </svg>`;
+  } else {
+    av.textContent = '😊';
+  }
+
+  const col = document.createElement('div');
+  col.className = 'msg-col';
+
+  const bubble = document.createElement('div');
+  bubble.className = 'bubble ' + (sender==='bot' ? 'bot-bubble' : 'user-bubble');
+  bubble.innerHTML = md(text);
+
+  const extras = opts.extras || {};
+
+  // IMAGE with lightbox + actions
+  if(extras.image){
+    const imgWrap = document.createElement('div');
+    
+    const img = document.createElement('img');
+    img.src = extras.image;
+    img.className = 'extra-img';
+    img.alt = extras.alt || extras.query || 'image';
+    img.onerror = function(){ this.parentElement.style.display='none'; };
+    
+    const imgAlt = extras.alt || extras.query || text.replace(/[^a-z0-9 ]/gi,'').trim();
+    const imgCredit = extras.credit || '';
+    
+    img.onclick = function(){
+      openLightbox(this.src, imgAlt ? `🖼️ **${imgAlt}**\n\n${imgCredit}` : '', imgCredit);
+    };
+    imgWrap.appendChild(img);
+    
+    if(imgCredit){
+      const c = document.createElement('div');
+      c.className = 'extra-credit';
+      c.textContent = imgCredit;
+      imgWrap.appendChild(c);
+    }
+    
+    // Image action bar
+    const actions = document.createElement('div');
+    actions.className = 'img-actions';
+    
+    const viewBtn = document.createElement('button');
+    viewBtn.className = 'img-action-btn';
+    viewBtn.textContent = '🔍 View';
+    viewBtn.onclick = ()=> openLightbox(extras.image, imgAlt ? `🖼️ **${imgAlt}**` : '', imgCredit);
+    
+    const copyBtn = document.createElement('button');
+    copyBtn.className = 'img-action-btn';
+    copyBtn.textContent = '🔗 Copy Link';
+    copyBtn.onclick = ()=>{
+      navigator.clipboard.writeText(extras.image).then(()=> showToast('🔗 Image link copied!')).catch(()=> prompt('Copy link:', extras.image));
+    };
+    
+    const shareBtn = document.createElement('button');
+    shareBtn.className = 'img-action-btn';
+    shareBtn.textContent = '📤 Share';
+    shareBtn.onclick = ()=>{
+      currentLightboxImg = extras.image;
+      currentLightboxAlt = imgAlt || '';
+      openLightbox(extras.image, imgAlt ? `🖼️ **${imgAlt}**` : '', imgCredit);
+    };
+    
+    actions.appendChild(viewBtn);
+    actions.appendChild(copyBtn);
+    actions.appendChild(shareBtn);
+    imgWrap.appendChild(actions);
+    bubble.appendChild(imgWrap);
+  }
+
+  // VIDEO with share options
+  if(extras.video){
+    const wrap = document.createElement('div');
+    wrap.className = 'extra-video-wrap';
+    const iframe = document.createElement('iframe');
+    iframe.src = extras.video;
+    iframe.allowFullscreen = true;
+    iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+    wrap.appendChild(iframe);
+    bubble.appendChild(wrap);
+    
+    if(extras.link){
+      const vActions = document.createElement('div');
+      vActions.className = 'video-actions';
+      
+      const openBtn = document.createElement('a');
+      openBtn.href = extras.link;
+      openBtn.target = '_blank';
+      openBtn.rel = 'noopener noreferrer';
+      openBtn.className = 'img-action-btn';
+      openBtn.textContent = '▶️ Open on YouTube';
+      
+      const copyVBtn = document.createElement('button');
+      copyVBtn.className = 'img-action-btn';
+      copyVBtn.textContent = '🔗 Copy Video Link';
+      copyVBtn.onclick = ()=>{
+        navigator.clipboard.writeText(extras.link).then(()=> showToast('🔗 Video link copied!')).catch(()=> prompt('Copy link:', extras.link));
+      };
+      
+      const shareFB = document.createElement('button');
+      shareFB.className = 'img-action-btn';
+      shareFB.textContent = '📘 Share';
+      shareFB.onclick = ()=>{
+        window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(extras.link)}`,'_blank','width=600,height=400');
+      };
+      
+      vActions.appendChild(openBtn);
+      vActions.appendChild(copyVBtn);
+      vActions.appendChild(shareFB);
+      bubble.appendChild(vActions);
+    }
+  }
+
+  // Link (no video)
+  if(extras.link && !extras.video){
+    const a = document.createElement('a');
+    a.href = extras.link;
+    a.target = '_blank';
+    a.rel = 'noopener noreferrer';
+    a.className = 'extra-link';
+    a.textContent = '🔗 Open link';
+    bubble.appendChild(a);
+  }
+
+  // QUIZ clickable options
+  if(extras.quiz && sender==='bot'){
+    currentActiveQuiz = extras.quiz;
+    const {options, correct} = extras.quiz;
+    
+    const optsWrap = document.createElement('div');
+    optsWrap.className = 'quiz-options';
+    
+    options.forEach((opt, idx)=>{
+      const btn = document.createElement('button');
+      btn.className = 'quiz-opt';
+      btn.textContent = `${String.fromCharCode(65+idx)}. ${opt}`;
+      btn.onclick = function(){
+        // Disable all options
+        optsWrap.querySelectorAll('.quiz-opt').forEach(b=> b.disabled = true);
+        const isCorrect = opt.trim().toLowerCase() === correct.trim().toLowerCase();
+        btn.classList.add(isCorrect ? 'correct' : 'wrong');
+        if(!isCorrect){
+          optsWrap.querySelectorAll('.quiz-opt').forEach(b=>{
+            if(b.textContent.includes(correct)) b.classList.add('correct');
+          });
+        }
+        // Send answer to server for proper tracking
+        const letter = String.fromCharCode(65+idx);
+        sendQuickSilent(letter);
+      };
+      optsWrap.appendChild(btn);
+    });
+    bubble.appendChild(optsWrap);
+  }
+
+  const time = document.createElement('div');
+  time.className = 'msg-time';
+  time.textContent = timeStr(opts.when);
+
+  col.appendChild(bubble);
+  col.appendChild(time);
+  row.appendChild(av);
+  row.appendChild(col);
+  messagesEl.insertBefore(row, typingEl);
+  scrollBottom();
+}
+
+function showTyping(){ typingEl.classList.add('show'); scrollBottom(); }
+function hideTyping(){ typingEl.classList.remove('show'); }
+
+/* ── SEND MESSAGE ── */
+async function sendMessage(){
+  const text = inputEl.value.trim();
+  if(!text || sendBtn.disabled) return;
+  inputEl.value = '';
+  inputEl.style.height = 'auto';
+  sendBtn.disabled = true;
+  appendMsg(text, 'user');
+  showTyping();
+
+  try{
+    const res = await fetch('/api/chat', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({message: text})
+    });
+    if(res.status === 401){
+      hideTyping();
+      appendMsg('Session expired! Redirecting… 🔑','bot');
+      setTimeout(()=>{ window.location.href='/'; }, 2000);
+      return;
+    }
+    const data = await res.json();
+    hideTyping();
+    if(data.error){
+      appendMsg(data.error, 'bot');
+    } else {
+      if(data.correction_note){
+        appendMsg(data.correction_note, 'correction');
+      }
+      appendMsg(data.reply || 'Oops! Something went wrong 😅', 'bot', {extras: data.extras || {}});
+    }
+  } catch(err){
+    hideTyping();
+    appendMsg('Oh no! Lost connection. Please try again! 📡','bot');
+  }
+  sendBtn.disabled = false;
+  inputEl.focus();
+}
+
+/* Silent send (for quiz answers via buttons) */
+async function sendQuickSilent(text){
+  try{
+    const res = await fetch('/api/chat', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({message: text})
+    });
+    const data = await res.json();
+    if(data.reply && !data.extras?.quiz){
+      // Show the reply (correct/wrong message) from server without showing user bubble
+      appendMsg(data.reply, 'bot', {extras: data.extras || {}});
+    }
+  } catch(e){}
+}
+
+function sendQuick(text){ inputEl.value=text; sendMessage(); }
+
+async function doLogout(){
+  await fetch('/api/logout',{method:'POST'});
+  window.location.href='/';
+}
+
+/* ── LOAD HISTORY ── */
+async function loadHistory(){
+  try{
+    const res = await fetch('/api/history');
+    if(!res.ok) return;
+    const data = await res.json();
+    const hist = data.history || [];
+    if(!hist.length) return;
+    hideWelcome();
+    const top = document.createElement('div');
+    top.className = 'hist-banner';
+    top.textContent = 'Previous conversations';
+    messagesEl.insertBefore(top, typingEl);
+    hist.forEach(function(h){
+      appendMsg(h.message, 'user', {when: h.created_at});
+      appendMsg(h.reply,   'bot',  {when: h.created_at, extras: h.extras || {}});
+    });
+    const now = document.createElement('div');
+    now.className = 'hist-banner';
+    now.textContent = 'Now';
+    messagesEl.insertBefore(now, typingEl);
+    scrollBottom(false);
+  } catch(e){ /* silently ignore */ }
+}
+
+inputEl.focus();
+loadHistory();
+</script>
+</body>
+</html>
