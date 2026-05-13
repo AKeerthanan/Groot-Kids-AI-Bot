@@ -53,37 +53,31 @@ button:hover{transform:translateY(-2px);box-shadow:0 6px 24px rgba(74,158,80,0.6
 }
 .hint{margin-top:18px;text-align:center;font-size:12px;color:#3d6a41}
 .hint code{background:rgba(74,158,80,0.12);padding:2px 7px;border-radius:5px;color:#6fcf74}
+
+/* ── RESPONSIVE ── */
+@media(max-width:768px){
+  body{padding:16px}
+  .card{padding:30px 24px}
+}
+@media(max-width:480px){
+  body{padding:0;align-items:flex-end}
+  .card{
+    border-radius:20px 20px 0 0;
+    padding:28px 18px 32px;
+    max-width:100%;
+    min-height:auto;
+  }
+  .logo-wrap svg{width:64px;height:64px}
+  .logo{font-size:24px}
+  input{padding:14px 14px;font-size:15px}
+  button{padding:15px;font-size:15px}
+}
 </style>
 </head>
 <body>
 <div class="card">
   <div class="logo-wrap">
-    <svg viewBox="0 0 80 90" xmlns="http://www.w3.org/2000/svg">
-      <ellipse cx="40" cy="78" rx="18" ry="10" fill="#5a3a1a"/>
-      <rect x="25" y="68" width="30" height="16" rx="5" fill="#6b4523"/>
-      <ellipse cx="40" cy="68" rx="15" ry="4" fill="#3d2510"/>
-      <path d="M30 72 Q23 76 20 82" stroke="#4a7a3a" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-      <path d="M50 72 Q57 76 60 82" stroke="#4a7a3a" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-      <path d="M30 68 Q28 56 30 46 Q32 40 40 38 Q48 40 50 46 Q52 56 50 68" fill="#5a8a45"/>
-      <path d="M32 52 Q22 48 17 52" stroke="#5a8a45" stroke-width="6" fill="none" stroke-linecap="round"/>
-      <path d="M48 52 Q58 48 63 52" stroke="#5a8a45" stroke-width="6" fill="none" stroke-linecap="round"/>
-      <circle cx="16" cy="53" r="4" fill="#4a7a3a"/>
-      <circle cx="64" cy="53" r="4" fill="#4a7a3a"/>
-      <ellipse cx="40" cy="27" rx="16" ry="18" fill="#5a8a45"/>
-      <ellipse cx="33" cy="27" rx="4" ry="5" fill="#1a0a00"/>
-      <ellipse cx="47" cy="27" rx="4" ry="5" fill="#1a0a00"/>
-      <circle cx="35" cy="25" r="1.5" fill="#fff" opacity="0.9"/>
-      <circle cx="49" cy="25" r="1.5" fill="#fff" opacity="0.9"/>
-      <ellipse cx="40" cy="33" rx="2.5" ry="1.5" fill="#3d6a30"/>
-      <path d="M34 37 Q40 42 46 37" stroke="#3d6a30" stroke-width="2" fill="none" stroke-linecap="round"/>
-      <ellipse cx="27" cy="12" rx="7" ry="4" fill="#6fcf74" transform="rotate(-35 27 12)"/>
-      <ellipse cx="40" cy="8" rx="6" ry="3.5" fill="#5ab860"/>
-      <ellipse cx="53" cy="11" rx="7" ry="4" fill="#7dd982" transform="rotate(30 53 11)"/>
-      <circle cx="40" cy="4" r="3" fill="#f5c842"/>
-      <circle cx="36" cy="3" r="2.5" fill="#f5c842"/>
-      <circle cx="44" cy="3" r="2.5" fill="#f5c842"/>
-      <circle cx="40" cy="4" r="2" fill="#e8a020"/>
-    </svg>
+      <img src="{{ url_for('static', filename='img/groot_Logo.png') }}" alt="Groot AI" class="sidebar-groot-img" style="width:80px;height:auto;object-fit:contain;">
   </div>
   <div class="logo">🛡️ Groot Admin</div>
   <p class="sub">Training dashboard — Groot AI</p>

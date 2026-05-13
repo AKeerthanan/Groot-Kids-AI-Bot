@@ -108,16 +108,15 @@ body{
 .btn-logout:hover{background:rgba(245,200,66,0.22)}
 
 /* LAYOUT */
-.main{display:flex;flex:1;overflow:hidden;position:relative;z-index:1}
+.main{display:flex;flex:1;overflow:hidden;position:relative}
 
 /* SIDEBAR */
 .sidebar{
   width:230px;
-  background:linear-gradient(180deg,rgba(15,34,17,0.97),rgba(10,26,13,0.97));
+  background:linear-gradient(180deg,rgba(15,34,17,0.99),rgba(10,26,13,0.99));
   border-right:1px solid rgba(74,158,80,0.12);
   display:flex;flex-direction:column;padding:14px 10px;gap:4px;
   flex-shrink:0;overflow-y:auto;
-  backdrop-filter:blur(8px);
 }
 .sidebar::-webkit-scrollbar{width:3px}
 .sidebar::-webkit-scrollbar-thumb{background:rgba(106,207,116,0.15);border-radius:2px}
@@ -249,7 +248,7 @@ body{
 .msg-row.user{flex-direction:row-reverse}
 .avatar-sm{width:34px;height:34px;border-radius:50%;flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center}
 .bot-av{background:linear-gradient(135deg,#1a4a1e,#2d7a32);box-shadow:0 0 12px rgba(74,158,80,0.5);border:1px solid rgba(74,158,80,0.3)}
-.bot-av svg{width:26px;height:26px}
+.bot-av img{width:26px;height:26px;object-fit:contain}
 .user-av{background:linear-gradient(135deg,var(--amber),var(--golden));box-shadow:0 0 10px rgba(232,160,32,0.4);font-size:16px}
 .msg-col{max-width:74%}
 .bubble{padding:12px 16px;border-radius:18px;font-size:14px;line-height:1.7;word-break:break-word}
@@ -282,6 +281,29 @@ body{
   overflow:hidden;border-radius:12px;border:1px solid rgba(74,158,80,0.15);
 }
 .extra-video-wrap iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:none}
+
+/* Responsive media only: logos, images, and video surfaces */
+.groot-avatar,
+.sidebar-groot-img,
+.welcome-groot,
+.bot-av img{
+  max-width:100%;
+  object-fit:contain;
+}
+.extra-img,
+.lightbox-img{
+  width:auto;
+  height:auto;
+}
+video,
+.background-video,
+.bg-video,
+.hero-video{
+  width:100%;
+  height:100%;
+  max-width:100%;
+  object-fit:cover;
+}
 .extra-link{
   display:inline-flex;align-items:center;gap:5px;margin-top:8px;
   color:var(--bright-leaf);font-weight:700;font-size:13px;text-decoration:none;
@@ -456,6 +478,114 @@ body{
   box-shadow:0 4px 20px rgba(0,0,0,0.4);
 }
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ── RESPONSIVE ── */
+
+/* Small laptop (1024px) */
+@media(max-width:1024px){
+  .sidebar{width:200px}
+  .topbar{padding:0 12px;height:58px}
+  .groot-info h2{font-size:17px}
+  .user-badge{padding:5px 10px;font-size:12px}
+}
+
+/* Tablet (768px) - sidebar collapses into slide-out drawer */
+@media(max-width:768px){
+  /* Sidebar becomes hidden off-canvas by default */
+  .sidebar{
+    position:fixed;
+    left:-240px;
+    top:0;bottom:0;
+    width:240px;
+    z-index:500;  /* must beat topbar z-index:10 — now unrestricted since .main has no z-index */
+    transition:left 0.28s cubic-bezier(.4,0,.2,1);
+    padding-top:70px; /* below topbar */
+    box-shadow:4px 0 30px rgba(0,0,0,0.5);
+  }
+  .sidebar.open{left:0}
+
+  /* Overlay sits BEHIND sidebar — no backdrop-filter (it causes blur + blocks clicks) */
+  .sidebar-overlay{
+    display:none;
+    position:fixed;inset:0;
+    background:rgba(0,0,0,0.55);
+    z-index:499;  /* just below sidebar */
+  }
+  .sidebar-overlay.show{display:block}
+
+  /* Hamburger toggle button */
+  .sidebar-toggle{
+    display:flex;align-items:center;justify-content:center;
+    width:38px;height:38px;border-radius:50%;border:1px solid rgba(74,158,80,0.3);
+    background:rgba(74,158,80,0.1);color:var(--bright-leaf);
+    font-size:18px;cursor:pointer;transition:all .2s;flex-shrink:0;
+  }
+  .sidebar-toggle:hover{background:rgba(74,158,80,0.25)}
+
+  .chat-wrap{width:100%}
+  .topbar{padding:0 10px;height:56px}
+  .topbar-left{gap:8px}
+  .groot-avatar-wrap{width:42px;height:42px}
+  .groot-avatar{width:42px;height:42px}
+  .groot-info h2{font-size:16px}
+  .groot-info p{font-size:10px}
+  .user-badge{padding:5px 9px;font-size:12px}
+  .btn-clear-chat,.btn-logout{padding:6px 10px;font-size:11px}
+
+  .messages{padding:14px 12px 8px}
+  .msg-col{max-width:82%}
+  .bubble{font-size:13.5px;padding:10px 13px}
+
+  .input-area{padding:10px 12px 14px}
+  .input-hint{font-size:9px}
+}
+
+/* Mobile (480px) */
+@media(max-width:480px){
+  .topbar{padding:0 8px;height:52px}
+  .topbar-left{gap:6px}
+  .groot-avatar-wrap{width:36px;height:36px}
+  .groot-avatar{width:36px;height:36px}
+  .groot-info h2{font-size:14px;letter-spacing:0}
+  .groot-info p{display:none} /* hide status line, too cramped */
+  .user-badge{padding:4px 8px;font-size:11px;max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  /* Combine clear+logout into icon-only buttons */
+  .btn-clear-chat{font-size:0;padding:7px 9px}
+  .btn-clear-chat::before{content:'🗑️';font-size:15px}
+  .btn-logout{font-size:0;padding:7px 9px}
+  .btn-logout::before{content:'🚪';font-size:15px}
+
+  .messages{padding:10px 8px 6px;gap:10px}
+  .msg-col{max-width:88%}
+  .avatar-sm{width:28px;height:28px}
+  .bubble{font-size:13px;padding:9px 12px;border-radius:14px}
+  .quiz-opt{font-size:12px;padding:9px 11px}
+  .pill{padding:6px 11px;font-size:11px}
+  .subject-pills{gap:5px}
+  .welcome h2{font-size:22px}
+  .welcome-groot{width:min(70vw,100px)!important;height:auto}
+  .welcome-sub{font-size:13px}
+
+  .input-area{padding:8px 8px 10px}
+  .input-row{padding:6px 8px 6px 12px;border-radius:16px}
+  #msg-input{font-size:14px}
+  .btn-send{width:40px;height:40px;font-size:16px}
+  .input-hint{display:none} /* save space on mobile */
+
+  /* Lightbox adjustments */
+  .lightbox-img{max-width:95vw;max-height:60vh}
+  .lightbox-desc{font-size:12px;padding:0 12px}
+  .lightbox-actions{gap:6px}
+  .lb-btn{padding:9px 14px;font-size:12px}
+
+  /* Delete modal */
+  .modal-box{padding:22px 16px;width:95%}
+  .modal-btns{flex-direction:column;gap:8px}
+  .modal-btn{width:100%;padding:13px}
+
+  /* Toast above input */
+  .toast{bottom:70px;font-size:12px;padding:8px 16px}
+}
 </style>
 </head>
 <body>
@@ -493,67 +623,15 @@ body{
 <!-- COPY TOAST -->
 <div class="toast" id="toast"></div>
 
+<!-- SIDEBAR OVERLAY (mobile) -->
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
 <div class="topbar">
   <div class="topbar-left">
+    <!-- Hamburger (shown on tablet/mobile via CSS) -->
+    <button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()" aria-label="Open menu" style="display:none">☰</button>
     <div class="groot-avatar-wrap">
-      <svg class="groot-avatar" viewBox="0 0 100 110" xmlns="http://www.w3.org/2000/svg">
-        <!-- Baby Groot SVG character -->
-        <!-- Body/Pot -->
-        <ellipse cx="50" cy="95" rx="22" ry="12" fill="#5a3a1a"/>
-        <rect x="32" y="83" width="36" height="20" rx="6" fill="#6b4523"/>
-        <!-- Soil -->
-        <ellipse cx="50" cy="83" rx="18" ry="5" fill="#3d2510"/>
-        <!-- Legs/Roots coming out of pot -->
-        <path d="M35 88 Q28 92 25 100" stroke="#4a7a3a" stroke-width="3" fill="none" stroke-linecap="round"/>
-        <path d="M65 88 Q72 92 75 100" stroke="#4a7a3a" stroke-width="3" fill="none" stroke-linecap="round"/>
-        <!-- Trunk/Body -->
-        <path d="M38 84 Q36 70 38 58 Q40 50 50 48 Q60 50 62 58 Q64 70 62 84" fill="#5a8a45"/>
-        <!-- Arms -->
-        <path d="M40 65 Q28 60 22 65 Q18 68 20 72" stroke="#5a8a45" stroke-width="7" fill="none" stroke-linecap="round"/>
-        <path d="M60 65 Q72 60 78 65 Q82 68 80 72" stroke="#5a8a45" stroke-width="7" fill="none" stroke-linecap="round"/>
-        <!-- Hands -->
-        <circle cx="20" cy="73" r="5" fill="#4a7a3a"/>
-        <circle cx="80" cy="73" r="5" fill="#4a7a3a"/>
-        <!-- Small fingers -->
-        <circle cx="16" cy="70" r="3" fill="#4a7a3a"/>
-        <circle cx="14" cy="75" r="2.5" fill="#4a7a3a"/>
-        <circle cx="84" cy="70" r="3" fill="#4a7a3a"/>
-        <circle cx="86" cy="75" r="2.5" fill="#4a7a3a"/>
-        <!-- Head -->
-        <ellipse cx="50" cy="36" rx="20" ry="22" fill="#5a8a45"/>
-        <!-- Bark texture on head -->
-        <path d="M36 28 Q40 22 44 28" stroke="#3d6a30" stroke-width="1.5" fill="none"/>
-        <path d="M42 20 Q46 14 50 20" stroke="#3d6a30" stroke-width="1.5" fill="none"/>
-        <path d="M52 18 Q56 12 60 18" stroke="#3d6a30" stroke-width="1.5" fill="none"/>
-        <path d="M58 28 Q62 22 66 28" stroke="#3d6a30" stroke-width="1.5" fill="none"/>
-        <!-- Eyes -->
-        <ellipse cx="42" cy="36" rx="5" ry="6" fill="#1a0a00"/>
-        <ellipse cx="58" cy="36" rx="5" ry="6" fill="#1a0a00"/>
-        <!-- Eye shine -->
-        <circle cx="44" cy="34" r="2" fill="#fff" opacity="0.9"/>
-        <circle cx="60" cy="34" r="2" fill="#fff" opacity="0.9"/>
-        <circle cx="43" cy="37" r="1" fill="#fff" opacity="0.5"/>
-        <circle cx="59" cy="37" r="1" fill="#fff" opacity="0.5"/>
-        <!-- Nose -->
-        <ellipse cx="50" cy="43" rx="3" ry="2" fill="#3d6a30"/>
-        <!-- Mouth - smile -->
-        <path d="M43 48 Q50 54 57 48" stroke="#3d6a30" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-        <!-- Leaves on head -->
-        <ellipse cx="35" cy="18" rx="8" ry="5" fill="#6fcf74" transform="rotate(-30 35 18)"/>
-        <ellipse cx="50" cy="12" rx="7" ry="4" fill="#5ab860" transform="rotate(5 50 12)"/>
-        <ellipse cx="65" cy="16" rx="8" ry="5" fill="#7dd982" transform="rotate(25 65 16)"/>
-        <ellipse cx="42" cy="10" rx="5" ry="3" fill="#4caf52" transform="rotate(-15 42 10)"/>
-        <ellipse cx="60" cy="9" rx="5" ry="3" fill="#8ae88e" transform="rotate(20 60 9)"/>
-        <!-- Tiny flower on top -->
-        <circle cx="50" cy="6" r="4" fill="#f5c842"/>
-        <circle cx="44" cy="5" r="3" fill="#f5c842"/>
-        <circle cx="56" cy="5" r="3" fill="#f5c842"/>
-        <circle cx="50" cy="6" r="2.5" fill="#e8a020"/>
-        <!-- Bark lines on body -->
-        <path d="M42 55 Q50 50 58 55" stroke="#3d6a30" stroke-width="1" fill="none"/>
-        <path d="M40 65 Q50 60 60 65" stroke="#3d6a30" stroke-width="1" fill="none"/>
-        <path d="M41 75 Q50 70 59 75" stroke="#3d6a30" stroke-width="1" fill="none"/>
-      </svg>
+      <img class="groot-avatar" src="{{ url_for('static', filename='img/groot.png') }}" alt="Groot AI" style="height: 50px;">
       <div class="groot-glow-ring"></div>
     </div>
     <div class="groot-info">
@@ -572,35 +650,7 @@ body{
   <!-- SIDEBAR -->
   <div class="sidebar">
     <div class="sidebar-groot">
-      <svg class="sidebar-groot-img" viewBox="0 0 80 90" xmlns="http://www.w3.org/2000/svg">
-        <ellipse cx="40" cy="78" rx="18" ry="10" fill="#5a3a1a"/>
-        <rect x="25" y="68" width="30" height="16" rx="5" fill="#6b4523"/>
-        <ellipse cx="40" cy="68" rx="15" ry="4" fill="#3d2510"/>
-        <path d="M30 72 Q23 76 20 82" stroke="#4a7a3a" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-        <path d="M50 72 Q57 76 60 82" stroke="#4a7a3a" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-        <path d="M30 68 Q28 56 30 46 Q32 40 40 38 Q48 40 50 46 Q52 56 50 68" fill="#5a8a45"/>
-        <path d="M32 52 Q22 48 17 52" stroke="#5a8a45" stroke-width="6" fill="none" stroke-linecap="round"/>
-        <path d="M48 52 Q58 48 63 52" stroke="#5a8a45" stroke-width="6" fill="none" stroke-linecap="round"/>
-        <circle cx="16" cy="53" r="4" fill="#4a7a3a"/>
-        <circle cx="64" cy="53" r="4" fill="#4a7a3a"/>
-        <ellipse cx="40" cy="27" rx="16" ry="18" fill="#5a8a45"/>
-        <path d="M30 20 Q33 15 36 20" stroke="#3d6a30" stroke-width="1.5" fill="none"/>
-        <path d="M36 14 Q40 9 44 14" stroke="#3d6a30" stroke-width="1.5" fill="none"/>
-        <path d="M44 13 Q48 8 52 13" stroke="#3d6a30" stroke-width="1.5" fill="none"/>
-        <ellipse cx="33" cy="27" rx="4" ry="5" fill="#1a0a00"/>
-        <ellipse cx="47" cy="27" rx="4" ry="5" fill="#1a0a00"/>
-        <circle cx="35" cy="25" r="1.5" fill="#fff" opacity="0.9"/>
-        <circle cx="49" cy="25" r="1.5" fill="#fff" opacity="0.9"/>
-        <ellipse cx="40" cy="33" rx="2.5" ry="1.5" fill="#3d6a30"/>
-        <path d="M34 37 Q40 42 46 37" stroke="#3d6a30" stroke-width="2" fill="none" stroke-linecap="round"/>
-        <ellipse cx="27" cy="12" rx="7" ry="4" fill="#6fcf74" transform="rotate(-35 27 12)"/>
-        <ellipse cx="40" cy="8" rx="6" ry="3.5" fill="#5ab860"/>
-        <ellipse cx="53" cy="11" rx="7" ry="4" fill="#7dd982" transform="rotate(30 53 11)"/>
-        <circle cx="40" cy="4" r="3" fill="#f5c842"/>
-        <circle cx="36" cy="3" r="2.5" fill="#f5c842"/>
-        <circle cx="44" cy="3" r="2.5" fill="#f5c842"/>
-        <circle cx="40" cy="4" r="2" fill="#e8a020"/>
-      </svg>
+      <img src="{{ url_for('static', filename='img/groot_Logo.png') }}" alt="Groot AI" class="sidebar-groot-img" style="width:80px;height:auto;object-fit:contain;">
       <div class="sidebar-groot-text">I am Groot! 🌿</div>
     </div>
 
@@ -638,47 +688,7 @@ body{
     <div class="chat-bg"></div>
     <div class="messages" id="messages">
       <div class="welcome" id="welcome-screen">
-        <svg class="welcome-groot" viewBox="0 0 100 110" xmlns="http://www.w3.org/2000/svg">
-          <ellipse cx="50" cy="95" rx="22" ry="12" fill="#5a3a1a"/>
-          <rect x="32" y="83" width="36" height="20" rx="6" fill="#6b4523"/>
-          <ellipse cx="50" cy="83" rx="18" ry="5" fill="#3d2510"/>
-          <path d="M35 88 Q28 92 25 100" stroke="#4a7a3a" stroke-width="3" fill="none" stroke-linecap="round"/>
-          <path d="M65 88 Q72 92 75 100" stroke="#4a7a3a" stroke-width="3" fill="none" stroke-linecap="round"/>
-          <path d="M38 84 Q36 70 38 58 Q40 50 50 48 Q60 50 62 58 Q64 70 62 84" fill="#5a8a45"/>
-          <path d="M40 65 Q28 60 22 65 Q18 68 20 72" stroke="#5a8a45" stroke-width="7" fill="none" stroke-linecap="round"/>
-          <path d="M60 65 Q72 60 78 65 Q82 68 80 72" stroke="#5a8a45" stroke-width="7" fill="none" stroke-linecap="round"/>
-          <circle cx="20" cy="73" r="5" fill="#4a7a3a"/>
-          <circle cx="80" cy="73" r="5" fill="#4a7a3a"/>
-          <circle cx="16" cy="70" r="3" fill="#4a7a3a"/>
-          <circle cx="14" cy="75" r="2.5" fill="#4a7a3a"/>
-          <circle cx="84" cy="70" r="3" fill="#4a7a3a"/>
-          <circle cx="86" cy="75" r="2.5" fill="#4a7a3a"/>
-          <ellipse cx="50" cy="36" rx="20" ry="22" fill="#5a8a45"/>
-          <path d="M36 28 Q40 22 44 28" stroke="#3d6a30" stroke-width="1.5" fill="none"/>
-          <path d="M42 20 Q46 14 50 20" stroke="#3d6a30" stroke-width="1.5" fill="none"/>
-          <path d="M52 18 Q56 12 60 18" stroke="#3d6a30" stroke-width="1.5" fill="none"/>
-          <path d="M58 28 Q62 22 66 28" stroke="#3d6a30" stroke-width="1.5" fill="none"/>
-          <ellipse cx="42" cy="36" rx="5" ry="6" fill="#1a0a00"/>
-          <ellipse cx="58" cy="36" rx="5" ry="6" fill="#1a0a00"/>
-          <circle cx="44" cy="34" r="2" fill="#fff" opacity="0.9"/>
-          <circle cx="60" cy="34" r="2" fill="#fff" opacity="0.9"/>
-          <circle cx="43" cy="37" r="1" fill="#fff" opacity="0.5"/>
-          <circle cx="59" cy="37" r="1" fill="#fff" opacity="0.5"/>
-          <ellipse cx="50" cy="43" rx="3" ry="2" fill="#3d6a30"/>
-          <path d="M43 48 Q50 54 57 48" stroke="#3d6a30" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-          <ellipse cx="35" cy="18" rx="8" ry="5" fill="#6fcf74" transform="rotate(-30 35 18)"/>
-          <ellipse cx="50" cy="12" rx="7" ry="4" fill="#5ab860" transform="rotate(5 50 12)"/>
-          <ellipse cx="65" cy="16" rx="8" ry="5" fill="#7dd982" transform="rotate(25 65 16)"/>
-          <ellipse cx="42" cy="10" rx="5" ry="3" fill="#4caf52" transform="rotate(-15 42 10)"/>
-          <ellipse cx="60" cy="9" rx="5" ry="3" fill="#8ae88e" transform="rotate(20 60 9)"/>
-          <circle cx="50" cy="6" r="4" fill="#f5c842"/>
-          <circle cx="44" cy="5" r="3" fill="#f5c842"/>
-          <circle cx="56" cy="5" r="3" fill="#f5c842"/>
-          <circle cx="50" cy="6" r="2.5" fill="#e8a020"/>
-          <path d="M42 55 Q50 50 58 55" stroke="#3d6a30" stroke-width="1" fill="none"/>
-          <path d="M40 65 Q50 60 60 65" stroke="#3d6a30" stroke-width="1" fill="none"/>
-          <path d="M41 75 Q50 70 59 75" stroke="#3d6a30" stroke-width="1" fill="none"/>
-        </svg>
+        <img class="welcome-groot" src="{{ url_for('static', filename='img/groot_Logo.png') }}" alt="Groot AI" style="width: 300px;">
         <div class="welcome-groot-says">🌿 I am Groot!</div>
         <h2>Hello, {{ username }}! 👋</h2>
         <p class="welcome-sub">I'm <strong>Groot</strong>, your super smart forest friend! I understand spelling &amp; grammar mistakes, remember everything you tell me, and learn from our chats! 🌟</p>
@@ -694,23 +704,7 @@ body{
       </div>
       <div class="typing-indicator" id="typing">
         <div class="avatar-sm bot-av">
-          <svg viewBox="0 0 40 44" xmlns="http://www.w3.org/2000/svg" width="28" height="28">
-            <ellipse cx="20" cy="13" rx="9" ry="10" fill="#5a8a45"/>
-            <ellipse cx="16" cy="13" rx="2" ry="2.5" fill="#1a0a00"/>
-            <ellipse cx="24" cy="13" rx="2" ry="2.5" fill="#1a0a00"/>
-            <circle cx="17" cy="12" r="1" fill="#fff" opacity="0.9"/>
-            <circle cx="25" cy="12" r="1" fill="#fff" opacity="0.9"/>
-            <path d="M17 18 Q20 21 23 18" stroke="#3d6a30" stroke-width="1.5" fill="none" stroke-linecap="round"/>
-            <ellipse cx="14" cy="6" rx="4" ry="2.5" fill="#6fcf74" transform="rotate(-30 14 6)"/>
-            <ellipse cx="20" cy="4" rx="3.5" ry="2" fill="#5ab860"/>
-            <ellipse cx="26" cy="5.5" rx="4" ry="2.5" fill="#7dd982" transform="rotate(25 26 5.5)"/>
-            <circle cx="20" cy="2" r="2.5" fill="#f5c842"/>
-            <path d="M14 22 Q10 20 8 23" stroke="#5a8a45" stroke-width="3.5" fill="none" stroke-linecap="round"/>
-            <path d="M26 22 Q30 20 32 23" stroke="#5a8a45" stroke-width="3.5" fill="none" stroke-linecap="round"/>
-            <path d="M16 34 Q14 28 15 23 Q16 20 20 19 Q24 20 25 23 Q26 28 24 34" fill="#5a8a45"/>
-            <ellipse cx="20" cy="38" rx="10" ry="5" fill="#5a3a1a"/>
-            <rect x="13" y="33" width="14" height="9" rx="3" fill="#6b4523"/>
-          </svg>
+          <img src="{{ url_for('static', filename='img/groot.png') }}" alt="Groot" style="width:28px;height:28px;object-fit:contain;">
         </div>
         <div>
           <div class="typing-dots"><span></span><span></span><span></span></div>
@@ -916,18 +910,7 @@ function appendMsg(text, sender, opts){
   const av = document.createElement('div');
   av.className = 'avatar-sm ' + (sender==='bot' ? 'bot-av' : 'user-av');
   if(sender==='bot'){
-    av.innerHTML = `<svg viewBox="0 0 40 44" xmlns="http://www.w3.org/2000/svg" width="26" height="26">
-      <ellipse cx="20" cy="13" rx="9" ry="10" fill="#5a8a45"/>
-      <ellipse cx="16" cy="13" rx="2" ry="2.5" fill="#1a0a00"/>
-      <ellipse cx="24" cy="13" rx="2" ry="2.5" fill="#1a0a00"/>
-      <circle cx="17" cy="12" r="1" fill="#fff" opacity="0.9"/>
-      <circle cx="25" cy="12" r="1" fill="#fff" opacity="0.9"/>
-      <path d="M17 18 Q20 21 23 18" stroke="#3d6a30" stroke-width="1.5" fill="none" stroke-linecap="round"/>
-      <ellipse cx="14" cy="6" rx="4" ry="2.5" fill="#6fcf74" transform="rotate(-30 14 6)"/>
-      <ellipse cx="20" cy="4" rx="3.5" ry="2" fill="#5ab860"/>
-      <ellipse cx="26" cy="5.5" rx="4" ry="2.5" fill="#7dd982" transform="rotate(25 26 5.5)"/>
-      <circle cx="20" cy="2" r="2.5" fill="#f5c842"/>
-    </svg>`;
+    av.innerHTML = `<img src="{{ url_for('static', filename='img/groot.png') }}" alt="Groot" style="width:26px;height:26px;object-fit:contain;">`;
   } else {
     av.textContent = '😊';
   }
@@ -1188,6 +1171,42 @@ async function loadHistory(){
 
 inputEl.focus();
 loadHistory();
+
+/* ── RESPONSIVE SIDEBAR TOGGLE ── */
+const sidebarEl       = document.querySelector('.sidebar');
+const sidebarOverlay  = document.getElementById('sidebarOverlay');
+const sidebarToggleBtn = document.getElementById('sidebarToggle');
+
+function openSidebar(){
+  sidebarEl.classList.add('open');
+  sidebarOverlay.classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+function closeSidebar(){
+  sidebarEl.classList.remove('open');
+  sidebarOverlay.classList.remove('show');
+  document.body.style.overflow = '';
+}
+function toggleSidebar(){
+  sidebarEl.classList.contains('open') ? closeSidebar() : openSidebar();
+}
+
+/* Show/hide hamburger based on viewport */
+function updateHamburgerVisibility(){
+  const show = window.innerWidth <= 768;
+  sidebarToggleBtn.style.display = show ? 'flex' : 'none';
+  if(!show){ closeSidebar(); }
+}
+updateHamburgerVisibility();
+window.addEventListener('resize', updateHamburgerVisibility);
+
+/* Close sidebar when a quick-btn is tapped on mobile */
+document.querySelectorAll('.quick-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{ if(window.innerWidth<=768) closeSidebar(); });
+});
+document.querySelectorAll('.pill').forEach(pill=>{
+  pill.addEventListener('click', ()=>{ if(window.innerWidth<=768) closeSidebar(); });
+});
 </script>
 </body>
 </html>
