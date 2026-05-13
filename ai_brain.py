@@ -8,7 +8,7 @@ Groot AI Brain v1.0
 - Content moderation: no adult/violence/offensive content
 - Returns {reply, confidence, topic, known, extras?, teachable?}
 """
-import os, csv, re, math, random
+import os, csv, re, math, random, ast
 from collections import Counter
 
 # ── TEXT HELPERS ──────────────────────────────────────────────────────────────
@@ -25,7 +25,7 @@ def normalize_input(t):
 def normalize_repeated_letters(t):
     """Handle child-like typing: 'hiiiii' -> 'hi', 'plssss' -> 'please'"""
     msg = normalize_input(t)
-    msg = re.sub(r"(.)\1{2,}", r"\1\1", msg)
+    msg = re.sub(r"([a-z])\1{2,}", r"\1\1", msg)
     words = msg.split()
     normalized = []
     for word in words:
@@ -101,18 +101,19 @@ DOMAIN_WORDS = {
 SMALLTALK_WORDS = {"good","great","nice","okay","ok","okey","fine","cool","how are you","how are you doing"}
 THANKS_WORDS    = {"thanks","thank you","thankyou","thx","ty"}
 HELP_INTENTS    = {"what can i do","what can you do","help","show topics","what should i ask"}
+TIME_GREETINGS  = {"good morning","morning","good afternoon","afternoon","good evening","evening","good night","night"}
+INVALID_NAME_VALUES = TIME_GREETINGS | {"good", "thanks", "thank you", "goodbye", "bye", "how are you"}
 
 def is_cancel_word(msg):  return normalize_input(msg).rstrip("?") in CANCEL_WORDS
 def is_yes_word(msg):     return normalize_input(msg).rstrip("?") in YES_WORDS
 def is_greeting(msg):     return normalize_repeated_letters(msg).rstrip("?") in {"hi","hello","hey","sup","howdy"}
 def is_smalltalk(msg):
     m = normalize_repeated_letters(msg).rstrip("?")
-    return m in SMALLTALK_WORDS or m in THANKS_WORDS
+    return m in SMALLTALK_WORDS or m in THANKS_WORDS or m in TIME_GREETINGS
 def is_help_intent(msg):  return normalize_repeated_letters(msg).rstrip("?") in HELP_INTENTS
 def is_simple_smalltalk(msg):
     m = normalize_repeated_letters(msg).rstrip("?")
-    return m in {"hi","hello","hey","good morning","good afternoon","good evening",
-                 "bye","goodbye","thanks","thank you","how are you"} or is_smalltalk(m) or is_help_intent(m)
+    return m in {"hi","hello","hey","bye","goodbye","thanks","thank you","how are you"} or is_smalltalk(m) or is_help_intent(m)
 
 def is_gibberish(msg):
     msg = normalize_repeated_letters(msg)
@@ -238,7 +239,7 @@ def try_math(message):
     expr = re.sub(r"[^0-9+\-*/().\s]","",msg)
     if expr.strip() and re.search(r"\d",expr) and re.search(r"[+\-*/]",expr):
         try:
-            val = eval(expr, {"__builtins__":{}})
+            val = _safe_math_eval(expr)
             if isinstance(val, float): val = round(val, 6)
             return f"The answer is **{val}**! 🎉"
         except Exception: pass
@@ -248,12 +249,75 @@ def try_math(message):
     if m:
         a, op_w, b = int(m.group(1)), m.group(2), int(m.group(3))
         try:
-            result = eval(f'{a}{word_ops[op_w]}{b}')
+            result = _safe_math_eval(f'{a}{word_ops[op_w]}{b}')
             return f"**{a} {op_w} {b} = {result}**! ⭐"
         except Exception: pass
     return None
 
 # ── DATASET SEARCH ────────────────────────────────────────────────────────────
+_MATH_OPS = {
+    ast.Add: lambda a, b: a + b,
+    ast.Sub: lambda a, b: a - b,
+    ast.Mult: lambda a, b: a * b,
+    ast.Div: lambda a, b: a / b,
+}
+_WORD_MATH_OPS = {
+    "added to": "+", "sum of": "+", "plus": "+", "add": "+",
+    "take away": "-", "minus": "-", "subtract": "-",
+    "multiplied by": "*", "times": "*", "multiply": "*",
+    "divided by": "/", "divide": "/",
+}
+
+def _safe_math_eval(expr):
+    def walk(node):
+        if isinstance(node, ast.Expression):
+            return walk(node.body)
+        if isinstance(node, ast.Constant) and isinstance(node.value, (int, float)):
+            return node.value
+        if hasattr(ast, "Num") and isinstance(node, ast.Num):
+            return node.n
+        if isinstance(node, ast.UnaryOp) and isinstance(node.op, (ast.UAdd, ast.USub)):
+            val = walk(node.operand)
+            return val if isinstance(node.op, ast.UAdd) else -val
+        if isinstance(node, ast.BinOp) and type(node.op) in _MATH_OPS:
+            left = walk(node.left)
+            right = walk(node.right)
+            if isinstance(node.op, ast.Div) and right == 0:
+                raise ZeroDivisionError
+            return _MATH_OPS[type(node.op)](left, right)
+        raise ValueError
+
+    tree = ast.parse(expr, mode="eval")
+    return walk(tree)
+
+def _extract_math_expression(message):
+    text = normalize_input(message).replace("x", "*").rstrip("?")
+    text = re.sub(r"^(?:what(?:\s+is|s)?|calculate|solve|answer|find)\s+", "", text).strip()
+    for word, op in sorted(_WORD_MATH_OPS.items(), key=lambda item: len(item[0]), reverse=True):
+        text = re.sub(rf"\b{re.escape(word)}\b", op, text)
+    matches = re.findall(r"-?\d+(?:\.\d+)?(?:\s*[+\-*/]\s*-?\d+(?:\.\d+)?)+", text)
+    if not matches:
+        return None
+    expr = matches[0].replace(" ", "")
+    return expr if re.search(r"\d", expr) and re.search(r"[+\-*/]", expr) else None
+
+def _format_math_value(value):
+    if isinstance(value, float):
+        if value.is_integer():
+            return str(int(value))
+        return f"{round(value, 6):g}"
+    return str(value)
+
+def try_math(message):
+    expr = _extract_math_expression(message)
+    if not expr:
+        return None
+    try:
+        value = _safe_math_eval(expr)
+    except Exception:
+        return None
+    return f"The answer is {_format_math_value(value)}! 🎉"
+
 def dataset_query_variants(message):
     msg = normalize_repeated_letters(message).rstrip("?")
     variants = {msg}
@@ -406,6 +470,8 @@ def answer_about_self(message, memory):
     # ── Recall questions ──────────────────────────────────────────────────────
     if re.search(r"what(?:'s| is) my name|who am i|do you (?:know|remember) my name", msg):
         name = memory.get("name")
+        if name and normalize_input(name).rstrip("?") in INVALID_NAME_VALUES:
+            name = None
         return f"Of course — your name is **{name}**! 🌿" if name else "I don't know your name yet! Tell me: 'My name is …' 😊"
     if re.search(r"what(?:'s| is) my pet(?:'s)? name|my pet name|what is my (?:cat|dog|bird|fish|rabbit|hamster) name", msg):
         pet = memory.get("pet_name"); ptype = memory.get("pet_type","pet")
@@ -435,6 +501,8 @@ def answer_about_self(message, memory):
 
 def personalise(answer, memory):
     name = memory.get("name")
+    if name and normalize_input(name).rstrip("?") in INVALID_NAME_VALUES:
+        name = None
     if name and name.lower() not in answer.lower():
         greet = random.choice([
             f"Great question, {name}! 😊 ", f"Hey {name}! 😊 ",
@@ -460,7 +528,12 @@ import external_apis as ext
 
 _QUIZ_RE   = re.compile(r"\b(quiz|test me|ask me|trivia)\b", re.I)
 _DEFINE_RE = re.compile(r"(?:define|meaning of|what does)\s+(?:the\s+word\s+)?([a-zA-Z\-]+)|what\s+is\s+the\s+meaning\s+of\s+([a-zA-Z\-]+)", re.I)
-_IMAGE_RE  = re.compile(r"(?:show me|give me|find)?\s*(?:a\s+)?(?:picture|image|photo|pic)\s+of\s+(.+)", re.I)
+_RANDOM_IMAGE_RE = re.compile(
+    r"\b(?:show me|give me|find|get)?\s*(?:a|an)?\s*"
+    r"(?:random|fun|cool|surprise)?\s*(?:picture|image|photo|pic)\s*(?:please)?$",
+    re.I,
+)
+_IMAGE_RE  = re.compile(r"(?:show me|give me|find|get)?\s*(?:a|an)?\s*(?:fun|cool|random)?\s*(?:picture|image|photo|pic)\s+(?:of|about)\s+(.+)", re.I)
 _VIDEO_RE  = re.compile(r"(?:show me|give me|find|play)?\s*(?:a\s+)?(?:video|youtube)\s+(?:about|on|of)?\s*(.+)", re.I)
 _BOOK_RE   = re.compile(r"\bbooks?\s+(?:about|on|for)\s+(.+)", re.I)
 _ANIMAL_RE = re.compile(r"\b(random animal|tell me about an animal|animal fact|some animal)\b", re.I)
@@ -468,6 +541,27 @@ _NASA_RE   = re.compile(r"\b(astronomy picture|apod|nasa picture|space picture|p
 _WIKI_RE   = re.compile(r"^(?:tell me about|who (?:is|was)|what (?:is|are|was|were))\s+(.+?)\??$", re.I)
 _MATH_EXPR = re.compile(r"^[\d\s+\-*/().^x*,]+$")
 _TOPIC_HINT= re.compile(r"\b(?:tell me more|more about it|continue|next)\b", re.I)
+
+RANDOM_IMAGE_TOPICS = [
+    "cute red panda",
+    "rainbow over forest",
+    "baby elephant playing",
+    "colorful butterfly",
+    "sea turtle ocean",
+    "rocket launch space",
+    "sunflower field",
+    "penguin on ice",
+    "waterfall nature",
+    "dolphin jumping",
+]
+
+def _get_random_fun_image():
+    topic = random.choice(RANDOM_IMAGE_TOPICS)
+    result = ext.get_image(topic)
+    if result:
+        result["reply"] = f"🖼️ Here's a fun image for you:\n\n**{topic.title()}**"
+        return result
+    return {"reply": "I couldn't find a fun image right now 😊", "extras": {}}
 
 def try_external_apis(message, memory=None, history=None):
     msg = (message or "").strip()
@@ -477,6 +571,7 @@ def try_external_apis(message, memory=None, history=None):
         return ext.get_quiz(cat)
     if _NASA_RE.search(msg): return ext.get_nasa_apod()
     if _ANIMAL_RE.search(msg): return ext.get_animal()
+    if _RANDOM_IMAGE_RE.search(msg): return _get_random_fun_image()
     m = _IMAGE_RE.search(msg)
     if m:
         topic = m.group(1).strip().rstrip("?.! ")
@@ -511,6 +606,8 @@ def try_external_apis(message, memory=None, history=None):
 # ── FRIENDLY WRAPPER ──────────────────────────────────────────────────────────
 def _friendly_wrap(reply, memory, history=None):
     name = (memory or {}).get("name")
+    if name and normalize_input(name).rstrip("?") in INVALID_NAME_VALUES:
+        name = None
     if name and name.lower() in reply.lower(): return reply
     intros = [f"Sure {name}! 😊", f"Here you go, {name}! ✨", f"Ooh great question, {name}! 🌟"] if name \
         else ["Sure! 😊", "Here you go! ✨", "Ooh great question! 🌟", "Okay, look at this 👇"]
@@ -726,7 +823,8 @@ def generate_response(message, memory, history=None, prediction_ctx=None):
     # 8. Dataset search
     answer, topic, conf = find_best_answer(message)
     if answer and conf > 0.3:
-        r = {"reply": personalise(answer, memory), "confidence":conf, "topic":topic, "known":True}
+        reply = answer if topic in {"greeting", "smalltalk"} else personalise(answer, memory)
+        r = {"reply": reply, "confidence":conf, "topic":topic, "known":True}
         if correction_note: r["correction_note"] = correction_note
         return r
 
